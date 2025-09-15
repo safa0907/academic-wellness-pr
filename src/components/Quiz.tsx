@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Brain, CheckCircle, XCircle, Clock, Target } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
+import { SocialShare } from '@/components/SocialShare'
 
 interface QuizProps {
   userProfile: any
@@ -311,6 +312,14 @@ export function Quiz({ userProfile }: QuizProps) {
               <div className="text-4xl font-bold text-primary mb-2">{percentage}%</div>
               <Progress value={percentage} className="w-full h-3" />
             </div>
+            
+            {/* Social Sharing */}
+            <SocialShare 
+              score={finalScore}
+              totalQuestions={currentQuiz.length}
+              subject={currentQuiz.length > 0 ? currentQuiz[0].subject : 'Mixed'}
+              percentage={percentage}
+            />
             
             <div className="flex justify-center gap-4">
               <Button onClick={resetQuiz} variant="outline">

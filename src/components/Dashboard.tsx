@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { BookOpen, Brain, Heart, TrendUp, Target, Clock } from '@phosphor-icons/react'
+import { BookOpen, Brain, Heart, TrendUp, Target, Clock, GraduationCap, ArrowSquareOut } from '@phosphor-icons/react'
 
 interface DashboardProps {
   userProfile: any
@@ -133,6 +133,36 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
               </Badge>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      {/* Leaving Certificate Preparation */}
+      <Card className="bg-gradient-to-br from-purple-500/5 to-indigo-500/10 border-purple-500/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GraduationCap className="h-5 w-5 text-purple-600" />
+            Leaving Certificate Preparation
+          </CardTitle>
+          <CardDescription>
+            Access comprehensive resources and practice materials for your Leaving Cert exams
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-200/50">
+            <div>
+              <h4 className="font-semibold text-purple-800 mb-1">Official LC Prep Portal</h4>
+              <p className="text-sm text-purple-700">
+                Practice exams, study guides, and exam preparation resources
+              </p>
+            </div>
+            <Button
+              onClick={() => window.open('https://nice-coast-0da719e03.2.azurestaticapps.net', '_blank')}
+              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+            >
+              <ArrowSquareOut className="h-4 w-4" />
+              Access Portal
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

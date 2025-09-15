@@ -50,11 +50,26 @@ Students often struggle with:
 - **Success Criteria**: Users can easily understand their progress and feel motivated to continue
 
 ### 5. Practice Quiz System
-- **Functionality**: Subject-specific quizzes with performance tracking and adaptive difficulty
-- **Purpose**: Reinforces learning and provides objective progress measurement
-- **Success Criteria**: Quiz performance improves over time and correlates with confidence gains
+- **Functionality**: Subject-specific quizzes with performance tracking, adaptive difficulty, social media sharing capabilities, and detailed explanations
+- **Purpose**: Reinforces learning, provides objective progress measurement, and allows students to celebrate achievements publicly
+- **Success Criteria**: Quiz performance improves over time, correlates with confidence gains, and social sharing increases engagement
 
-### 6. Motivational System
+### 6. Leaving Certificate Preparation Integration  
+- **Functionality**: Direct access to comprehensive LC exam preparation portal (https://nice-coast-0da719e03.2.azurestaticapps.net) with practice materials and resources
+- **Purpose**: Provides specialized support for Irish students preparing for Leaving Certificate examinations
+- **Success Criteria**: Seamless access to official LC preparation resources integrated within the learning platform
+
+### 7. HSE Mental Health Crisis Support
+- **Functionality**: Automatic detection of high stress levels (8+/10) with immediate access to HSE mental health helplines, Samaritans, Pieta House, and Text About It crisis support services
+- **Purpose**: Ensures student safety and provides immediate professional mental health resources when stress levels become concerning
+- **Success Criteria**: High-stress situations are identified quickly with appropriate support resources readily available and accessible
+
+### 8. Social Media Integration
+- **Functionality**: Share quiz results and learning achievements on Twitter, Facebook, LinkedIn with pre-formatted motivational messages and hashtags
+- **Purpose**: Motivates continued engagement through social validation, celebrates academic progress publicly, and builds a positive learning community
+- **Success Criteria**: Increased platform engagement, positive reinforcement through social sharing, and improved motivation to continue learning
+
+### 9. Motivational System
 - **Functionality**: Achievement badges, positive reinforcement, streak tracking, and encouraging messages
 - **Purpose**: Maintains engagement and celebrates student progress
 - **Success Criteria**: Users report feeling motivated and maintain consistent platform usage

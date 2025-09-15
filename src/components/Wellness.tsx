@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress'
 import { Slider } from '@/components/ui/slider'
 import { Heart, Pause, Play, Sparkle, Moon, Sun } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
+import { HSESupport } from '@/components/HSESupport'
 
 interface WellnessProps {
   userProfile: any
@@ -187,6 +188,9 @@ export function Wellness({ userProfile }: WellnessProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* HSE Support - shows when stress is high */}
+      <HSESupport stressLevel={Math.max(currentStress, recentStressLevel)} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Breathing Exercise */}
