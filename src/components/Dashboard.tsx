@@ -150,9 +150,9 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
         <CardContent>
           <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-200/50">
             <div>
-              <h4 className="font-semibold text-purple-800 mb-1">Official LC Prep Portal</h4>
+              <h4 className="font-semibold text-purple-800 mb-1">GradeUp Coach</h4>
               <p className="text-sm text-purple-700">
-                Practice exams, study guides, and exam preparation resources
+                Chat with your AI coach for personalized study guidance and support
               </p>
             </div>
             <Button
@@ -160,7 +160,7 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
               className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
             >
               <ArrowSquareOut className="h-4 w-4" />
-              Access Portal
+              Chat Now
             </Button>
           </div>
         </CardContent>
