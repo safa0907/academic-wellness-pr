@@ -28,7 +28,7 @@ export function Navigation({ currentView, onNavigate, userProfile }: NavigationP
             <GraduationCap className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="font-bold text-lg">Study Companion</h1>
+            <h1 className="font-bold text-lg">GradeUp</h1>
             <p className="text-xs text-muted-foreground">AI-Powered Learning</p>
           </div>
         </div>

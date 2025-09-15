@@ -106,7 +106,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         <CardHeader className="text-center pb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <GraduationCap className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">Study Companion</h1>
+            <h1 className="text-2xl font-bold">GradeUp</h1>
           </div>
           <CardTitle className="text-xl">{stepTitles[step]}</CardTitle>
           <CardDescription>{stepDescriptions[step]}</CardDescription>
