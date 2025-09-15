@@ -1,7 +1,8 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { House, Calendar, Brain, Heart, ChartBar, User, GraduationCap } from '@phosphor-icons/react'
+import { House, Calendar, Brain, Heart, ChartBar, User } from '@phosphor-icons/react'
+import logoSvg from '@/assets/images/GradeUp.svg'
 
 interface NavigationProps {
   currentView: string
@@ -23,10 +24,12 @@ export function Navigation({ currentView, onNavigate, userProfile }: NavigationP
     <nav className="bg-card border-b border-border px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <GraduationCap className="h-6 w-6 text-primary" />
-          </div>
+        <div className="flex items-center gap-3">
+          <img 
+            src={logoSvg} 
+            alt="GradeUp Logo" 
+            className="h-8 w-auto"
+          />
           <div>
             <h1 className="font-bold text-lg">GradeUp</h1>
             <p className="text-xs text-muted-foreground">AI-Powered Learning</p>
