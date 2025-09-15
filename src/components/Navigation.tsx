@@ -28,7 +28,7 @@ export function Navigation({ currentView, onNavigate, userProfile }: NavigationP
           <img 
             src={logoSvg} 
             alt="GradeUp Logo" 
-            className="h-8 w-auto"
+            className="h-12 w-auto"
           />
           <div>
             <h1 className="font-bold text-lg">GradeUp</h1>
