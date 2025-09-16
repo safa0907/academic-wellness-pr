@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { GlobalStats } from '@/components/GlobalStats'
 import { BookOpen, Brain, Heart, TrendUp, Target, Clock, GraduationCap, ArrowSquareOut } from '@phosphor-icons/react'
 
 interface DashboardProps {
@@ -34,6 +35,9 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
           Ready to achieve your learning goals today?
         </p>
       </div>
+
+      {/* Global Student Stats */}
+      <GlobalStats />
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

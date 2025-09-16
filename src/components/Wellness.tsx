@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider'
 import { Heart, Pause, Play, Sparkle, Moon, Sun } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { HSESupport } from '@/components/HSESupport'
+import { GlobalStats } from '@/components/GlobalStats'
 
 interface WellnessProps {
   userProfile: any
@@ -314,6 +315,12 @@ export function Wellness({ userProfile }: WellnessProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Global Student Insights - Wellness Focus */}
+      <GlobalStats />
+
+      {/* High Stress Level Support */}
+      {currentStress >= 8 && <HSESupport stressLevel={currentStress} />}
 
       {/* Quick Wellness Tips */}
       <Card>
