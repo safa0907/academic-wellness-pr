@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Calendar, Clock, Brain, Sparkle, CheckCircle, Warning } from '@phosphor-icons/react'
+import { Calendar, Clock, Brain, Sparkle, CheckCircle, Warning, ArrowRight } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
+import { toast } from 'sonner'
 
 interface StudyPlannerProps {
   userProfile: any
@@ -21,6 +22,7 @@ interface StudySession {
   type: 'review' | 'new' | 'practice'
   confidence: number
   completed?: boolean
+  rolledOver?: boolean // New field to track rolled over sessions
 }
 
 interface StudyPlan {
@@ -34,6 +36,86 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
   const [studyPlans, setStudyPlans] = useKV<StudyPlan[]>('study-plans', [])
   const [isGenerating, setIsGenerating] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [lastRolloverCheck, setLastRolloverCheck] = useKV<string>('last-rollover-check', '')
+
+  // Check for incomplete sessions and rollover to next day
+  useEffect(() => {
+    const checkAndRolloverSessions = () => {
+      const today = new Date().toISOString().split('T')[0]
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      
+      // Only run rollover once per day
+      if (lastRolloverCheck === today) return
+      
+      if (!studyPlans) return
+      
+      const yesterdayPlan = studyPlans.find(p => p.date === yesterday)
+      if (!yesterdayPlan) return
+      
+      const incompleteSessions = yesterdayPlan.sessions.filter(s => !s.completed)
+      
+      if (incompleteSessions.length > 0) {
+        // Create new sessions for today with updated times
+        const rolledOverSessions: StudySession[] = incompleteSessions.map((session, index) => ({
+          ...session,
+          id: `rolled-${Date.now()}-${index}`,
+          startTime: adjustTimeForRollover(session.startTime, index),
+          endTime: adjustTimeForRollover(session.endTime, index),
+          completed: false,
+          rolledOver: true // Mark as rolled over
+        }))
+        
+        // Find or create today's plan
+        const todayPlan = studyPlans.find(p => p.date === today)
+        
+        const updatedPlans = studyPlans.map(plan => {
+          if (plan.date === today) {
+            // Add rolled over sessions to existing plan
+            const combinedSessions = [...plan.sessions, ...rolledOverSessions]
+            return {
+              ...plan,
+              sessions: combinedSessions,
+              totalHours: combinedSessions.reduce((sum, s) => sum + s.duration / 60, 0)
+            }
+          }
+          return plan
+        })
+        
+        // If no plan exists for today, create one with rolled over sessions
+        if (!todayPlan) {
+          const newTodayPlan: StudyPlan = {
+            date: today,
+            sessions: rolledOverSessions,
+            totalHours: rolledOverSessions.reduce((sum, s) => sum + s.duration / 60, 0),
+            focusAreas: Array.from(new Set(rolledOverSessions.map(s => s.subject)))
+          }
+          updatedPlans.push(newTodayPlan)
+        }
+        
+        setStudyPlans(updatedPlans)
+        setLastRolloverCheck(today)
+        
+        toast.success(
+          `${incompleteSessions.length} incomplete session${incompleteSessions.length > 1 ? 's' : ''} moved to today's plan`,
+          {
+            description: "Sessions from yesterday have been automatically rescheduled"
+          }
+        )
+      } else {
+        setLastRolloverCheck(today)
+      }
+    }
+    
+    // Run check on component mount and when studyPlans change
+    checkAndRolloverSessions()
+  }, [studyPlans, lastRolloverCheck, setStudyPlans, setLastRolloverCheck])
+
+  const adjustTimeForRollover = (timeString: string, index: number): string => {
+    const [hours, minutes] = timeString.split(':').map(Number)
+    // Start rolled over sessions a bit later to avoid conflicts
+    const adjustedHours = Math.max(9, hours + index)
+    return `${adjustedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+  }
 
   const generateAIPlan = async () => {
     setIsGenerating(true)
@@ -117,6 +199,71 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
     return typeTopics[Math.floor(Math.random() * typeTopics.length)]
   }
 
+  const manualRollover = () => {
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]
+    
+    if (!studyPlans) return
+    
+    const yesterdayPlan = studyPlans.find(p => p.date === yesterday)
+    if (!yesterdayPlan) {
+      toast.info("No study plan found for yesterday")
+      return
+    }
+    
+    const incompleteSessions = yesterdayPlan.sessions.filter(s => !s.completed)
+    
+    if (incompleteSessions.length === 0) {
+      toast.info("All sessions from yesterday were completed!")
+      return
+    }
+    
+    // Create rolled over sessions
+    const rolledOverSessions: StudySession[] = incompleteSessions.map((session, index) => ({
+      ...session,
+      id: `manual-rolled-${Date.now()}-${index}`,
+      startTime: adjustTimeForRollover(session.startTime, index),
+      endTime: adjustTimeForRollover(session.endTime, index),
+      completed: false,
+      rolledOver: true
+    }))
+    
+    // Update or create today's plan
+    const todayPlan = studyPlans.find(p => p.date === today)
+    
+    const updatedPlans = studyPlans.map(plan => {
+      if (plan.date === today) {
+        const combinedSessions = [...plan.sessions, ...rolledOverSessions]
+        return {
+          ...plan,
+          sessions: combinedSessions,
+          totalHours: combinedSessions.reduce((sum, s) => sum + s.duration / 60, 0)
+        }
+      }
+      return plan
+    })
+    
+    if (!todayPlan) {
+      const newTodayPlan: StudyPlan = {
+        date: today,
+        sessions: rolledOverSessions,
+        totalHours: rolledOverSessions.reduce((sum, s) => sum + s.duration / 60, 0),
+        focusAreas: Array.from(new Set(rolledOverSessions.map(s => s.subject)))
+      }
+      updatedPlans.push(newTodayPlan)
+    }
+    
+    setStudyPlans(updatedPlans)
+    setLastRolloverCheck(today)
+    
+    toast.success(
+      `${incompleteSessions.length} session${incompleteSessions.length > 1 ? 's' : ''} rolled over to today`,
+      {
+        description: "Incomplete sessions have been rescheduled"
+      }
+    )
+  }
+
   const markSessionComplete = (sessionId: string) => {
     if (!studyPlans) return
     
@@ -140,6 +287,7 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
   
   const completedSessions = currentPlan?.sessions.filter(s => s.completed).length || 0
   const totalSessions = currentPlan?.sessions.length || 0
+  const rolledOverSessions = currentPlan?.sessions.filter(s => s.rolledOver && !s.completed).length || 0
   const progressPercentage = totalSessions > 0 ? (completedSessions / totalSessions) * 100 : 0
 
   return (
@@ -164,10 +312,12 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
             <div className="flex-1">
               <h3 className="text-lg font-semibold mb-1">AI-Powered Study Planning</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Grade UP analyzes your confidence levels, learning goals, and available time to create optimized study schedules.
+                Grade UP analyzes your confidence levels, learning goals, and available time to create optimized study schedules. 
+                Incomplete sessions are automatically moved to the next day to keep you on track.
               </p>
               <div className="flex gap-2">
                 <Badge variant="secondary" className="text-xs">Adaptive Scheduling</Badge>
+                <Badge variant="secondary" className="text-xs">Auto Rollover</Badge>
                 <Badge variant="secondary" className="text-xs">Confidence-Based</Badge>
                 <Badge variant="secondary" className="text-xs">Goal-Oriented</Badge>
               </div>
@@ -189,23 +339,35 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
           />
         </div>
         
-        <Button 
-          onClick={generateAIPlan} 
-          disabled={isGenerating}
-          className="flex items-center gap-2"
-        >
-          {isGenerating ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Generating Plan...
-            </>
-          ) : (
-            <>
-              <Brain className="h-4 w-4" />
-              Generate AI Plan
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={manualRollover} 
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <ArrowRight className="h-4 w-4" />
+            Rollover Yesterday
+          </Button>
+          
+          <Button 
+            onClick={generateAIPlan} 
+            disabled={isGenerating}
+            className="flex items-center gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Generating Plan...
+              </>
+            ) : (
+              <>
+                <Brain className="h-4 w-4" />
+                Generate AI Plan
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Plan Overview */}
@@ -238,10 +400,10 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <Warning className="h-5 w-5 text-accent" />
+                <ArrowRight className="h-5 w-5 text-accent" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Focus Areas</p>
-                  <p className="text-lg font-semibold">{currentPlan.focusAreas.length}</p>
+                  <p className="text-sm text-muted-foreground">Rolled Over</p>
+                  <p className="text-lg font-semibold">{rolledOverSessions}</p>
                 </div>
               </div>
             </CardContent>
@@ -259,6 +421,23 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* Rollover Info */}
+      {currentPlan && rolledOverSessions > 0 && (
+        <Card className="bg-gradient-to-r from-accent/10 to-accent/5 border-accent/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <ArrowRight className="h-5 w-5 text-accent" />
+              <div>
+                <h4 className="font-medium text-accent-foreground">Sessions Moved Forward</h4>
+                <p className="text-sm text-muted-foreground">
+                  {rolledOverSessions} session{rolledOverSessions > 1 ? 's' : ''} from previous days have been automatically added to keep you on track.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Progress Bar */}
@@ -290,6 +469,8 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
                 className={`p-4 rounded-lg border transition-all ${
                   session.completed 
                     ? 'bg-secondary/10 border-secondary/20' 
+                    : session.rolledOver
+                    ? 'bg-accent/10 border-accent/20'
                     : 'bg-muted/50 hover:bg-muted/70'
                 }`}
               >
@@ -303,6 +484,12 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-semibold">{session.subject}</h4>
+                        {session.rolledOver && (
+                          <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/30">
+                            <ArrowRight className="h-3 w-3 mr-1" />
+                            Rolled Over
+                          </Badge>
+                        )}
                         <Badge variant="outline" className="text-xs">
                           {session.type}
                         </Badge>
