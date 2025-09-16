@@ -1,39 +1,39 @@
 import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Calendar, Clock, CheckCircle, ArrowRight, TrendUp, TrendDown, Eye, ArrowClockwise } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { Calendar, Clock, CheckCircle, ArrowRight, TrendingUp, TrendingDown, Eye, RotateCcw } from '@phosphor-icons/react'
+interface StudyHistoryProps {
 import { toast } from 'sonner'
 
 interface StudyHistoryProps {
-  userProfile: any
+  subject: string
 }
 
 interface StudySession {
-  id: string
+  type: 'rev
   subject: string
   topic: string
   duration: number
-  startTime: string
-  endTime: string
-  difficulty: 'easy' | 'medium' | 'hard'
-  type: 'review' | 'new' | 'practice'
-  confidence: number
-  completed?: boolean
-  rolledOver?: boolean
-}
+  const [selectedPl
 
-interface StudyPlan {
-  date: string
-  sessions: StudySession[]
-  totalHours: number
-  focusAreas: string[]
-}
+  const sortedPlans = studyPlans?.slice(
+      return new Date(b.date).getTime
+      const aComplet
+      return bComplet
+  }) || []
+ 
 
-export function StudyHistory({ userProfile }: StudyHistoryProps) {
-  const [studyPlans, setStudyPlans] = useKV<StudyPlan[]>('study-plans', [])
+  }
+  const format
+    const today = new Date
+    
+      return 'Today'
+ 
+
+        month: 'short', 
+        year: date.getFullYear() !== today.getFullYear() ? 'numeric' : unde
   const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null)
   const [sortBy, setSortBy] = useState<'date' | 'completion'>('date')
 
@@ -45,78 +45,78 @@ export function StudyHistory({ userProfile }: StudyHistoryProps) {
       const aCompletion = getCompletionRate(a)
       const bCompletion = getCompletionRate(b)
       return bCompletion - aCompletion
-    }
-  }) || []
+     
 
-  const getCompletionRate = (plan: StudyPlan): number => {
-    if (plan.sessions.length === 0) return 0
-    const completed = plan.sessions.filter(s => s.completed).length
-    return (completed / plan.sessions.length) * 100
-  }
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString)
-    const today = new Date()
-    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
-    
-    if (dateString === today.toISOString().split('T')[0]) {
-      return 'Today'
-    } else if (dateString === yesterday.toISOString().split('T')[0]) {
-      return 'Yesterday'
-    } else {
-      return date.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric',
-        year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
-      })
-    }
-  }
-
-  const getRelativeDate = (dateString: string): string => {
-    const date = new Date(dateString)
-    const today = new Date()
-    const diffTime = today.getTime() - date.getTime()
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-    
-    if (diffDays === 0) return 'Today'
-    if (diffDays === 1) return 'Yesterday'
-    if (diffDays < 7) return `${diffDays} days ago`
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
-    return `${Math.floor(diffDays / 30)} months ago`
-  }
-
-  const rolloverIncompleteSessions = (plan: StudyPlan) => {
-    const today = new Date().toISOString().split('T')[0]
-    const incompleteSessions = plan.sessions.filter(s => !s.completed)
-    
-    if (incompleteSessions.length === 0) {
-      toast.info("All sessions from this plan were already completed!")
-      return
-    }
-
-    // Create rolled over sessions with adjusted times
-    const rolledOverSessions: StudySession[] = incompleteSessions.map((session, index) => ({
-      ...session,
       id: `history-rolled-${Date.now()}-${index}`,
-      startTime: adjustTimeForRollover(session.startTime, index),
-      endTime: adjustTimeForRollover(session.endTime, index),
-      completed: false,
+      endTime: adjustTimeForRollover(session
       rolledOver: true
-    }))
 
-    // Find or create today's plan
-    const todayPlan = studyPlans?.find(p => p.date === today)
-    
-    const updatedPlans = studyPlans?.map(planItem => {
-      if (planItem.date === today) {
-        const combinedSessions = [...planItem.sessions, ...rolledOverSessions]
-        return {
+   
+
+        const combinedSessions = [...planItem.sessions
           ...planItem,
-          sessions: combinedSessions,
-          totalHours: combinedSessions.reduce((sum, s) => sum + s.duration / 60, 0)
-        }
+          totalHours: combin
       }
+    
+    // If no plan exists for today, create one
+      const newToday
+        sessions: rolledOverSessions,
+        focusAreas: Arra
+      update
+
+    
+      `${incompleteSessi
+        description: `S
+    )
+
+    c
+   
+
+    if (!studyPlans || studyPlans.length < 2) return 'neutr
+    const recentPlans = studyPlans
+      .sort((a, b) => new Da
+    
+    
+    
+    if (recent > previous + 5) return 
+    return 'neutral'
+
+    if (!studyPlans || studyPlans.length === 0) {
+    }
+   
+
+    const avgCompletion = totalSessions > 0 ? (completedSes
+    return { totalSessions, completedSessions, totalHour
+
+  co
+  return (
+      <div className="flex flex-col gap-2">
+          <C
+     
+
+      </div>
+      {/* Overall Statistics */}
+        <Card>
+            <div className="flex items-center gap-
+              <div>
+                <p className="text-lg font-semibold">{stats.t
+            </div>
+        </Card>
+       
+
+              <div>
+                <p className="text-lg font-semibold">{stats.c
+    
+        </Card>
+        <Card>
+            <div className="flex items-center gap-3">
+                
+                ) : tr
+                ) : (
+                )}
+         
+       
       return planItem
     }) || []
 
@@ -204,7 +204,7 @@ export function StudyHistory({ userProfile }: StudyHistoryProps) {
                 <p className="text-sm text-muted-foreground">Total Study Hours</p>
                 <p className="text-lg font-semibold">{stats.totalHours.toFixed(1)}h</p>
               </div>
-            </div>
+                  
           </CardContent>
         </Card>
 
@@ -212,22 +212,22 @@ export function StudyHistory({ userProfile }: StudyHistoryProps) {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-secondary" />
-              <div>
+                   
                 <p className="text-sm text-muted-foreground">Sessions Completed</p>
                 <p className="text-lg font-semibold">{stats.completedSessions}/{stats.totalSessions}</p>
               </div>
-            </div>
+                  
           </CardContent>
-        </Card>
+               
 
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="h-5 w-5 flex items-center justify-center">
                 {trend === 'up' ? (
-                  <TrendUp className="h-5 w-5 text-secondary" />
+                  <TrendingUp className="h-5 w-5 text-secondary" />
                 ) : trend === 'down' ? (
-                  <TrendDown className="h-5 w-5 text-destructive" />
+                  <TrendingDown className="h-5 w-5 text-destructive" />
                 ) : (
                   <div className="h-2 w-5 bg-muted-foreground rounded" />
                 )}
@@ -254,27 +254,27 @@ export function StudyHistory({ userProfile }: StudyHistoryProps) {
       </div>
 
       {/* Filters and Sorting */}
-      <div className="flex justify-between items-center">
+                  Subjects that needed extra attention
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium">Sort by:</label>
           <select
-            value={sortBy}
+                    <Badge
             onChange={(e) => setSortBy(e.target.value as 'date' | 'completion')}
             className="px-3 py-2 border rounded-md text-sm bg-background"
           >
             <option value="date">Date (Recent First)</option>
             <option value="completion">Completion Rate</option>
-          </select>
+      ) : (
         </div>
         
         {selectedPlan && (
-          <Button
+              Cli
             onClick={() => setSelectedPlan(null)}
-            variant="outline"
+          <CardContent>
             size="sm"
           >
             Back to List
-          </Button>
+                  G
         )}
       </div>
 
@@ -284,205 +284,204 @@ export function StudyHistory({ userProfile }: StudyHistoryProps) {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-b
                 <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    {formatDate(selectedPlan.date)}
-                  </CardTitle>
-                  <CardDescription>
-                    {getRelativeDate(selectedPlan.date)} • {selectedPlan.sessions.length} sessions • {selectedPlan.totalHours.toFixed(1)} hours
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-sm">
-                    {Math.round(getCompletionRate(selectedPlan))}% Complete
-                  </Badge>
-                  {selectedPlan.sessions.some(s => !s.completed) && (
-                    <Button
-                      onClick={() => rolloverIncompleteSessions(selectedPlan)}
-                      size="sm"
-                      variant="outline"
-                      className="flex items-center gap-2"
-                    >
-                      <ArrowClockwise className="h-4 w-4" />
-                      Move Incomplete to Today
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Study Sessions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {selectedPlan.sessions.map((session) => (
-                <div 
-                  key={session.id} 
-                  className={`p-4 rounded-lg border transition-all ${
-                    session.completed 
-                      ? 'bg-secondary/10 border-secondary/20' 
-                      : 'bg-muted/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center min-w-[80px]">
-                        <p className="text-sm font-medium">{session.startTime}</p>
-                        <p className="text-xs text-muted-foreground">{session.duration}min</p>
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold">{session.subject}</h4>
-                          <Badge variant="outline" className="text-xs">
-                            {session.type}
-                          </Badge>
-                          <Badge 
-                            variant={
-                              session.difficulty === 'hard' ? 'destructive' :
-                              session.difficulty === 'medium' ? 'secondary' : 'default'
-                            }
-                            className="text-xs"
-                          >
-                            {session.difficulty}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">{session.topic}</p>
-                        <div className="flex items-center gap-2">
-                          <Progress value={session.confidence} className="w-20 h-2" />
-                          <span className="text-xs text-muted-foreground">{session.confidence}% confidence</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {session.completed ? (
-                        <Badge variant="default" className="flex items-center gap-1">
-                          <CheckCircle className="h-3 w-3" />
-                          Complete
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-muted-foreground">
-                          Incomplete
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
 
-          {selectedPlan.focusAreas.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Focus Areas</CardTitle>
-                <CardDescription>
-                  Subjects that needed extra attention
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {selectedPlan.focusAreas.map((subject, index) => (
-                    <Badge key={index} variant="secondary" className="px-3 py-1">
-                      {subject}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      ) : (
-        // List View
-        <Card>
-          <CardHeader>
-            <CardTitle>Past Study Plans</CardTitle>
-            <CardDescription>
-              Click on any plan to view details and manage incomplete sessions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {sortedPlans.length === 0 ? (
-              <div className="text-center py-8">
-                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Study History Yet</h3>
-                <p className="text-muted-foreground">
-                  Generate your first study plan to start tracking your progress
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {sortedPlans.map((plan) => {
-                  const completionRate = getCompletionRate(plan)
-                  const incompleteSessions = plan.sessions.filter(s => !s.completed).length
-                  
-                  return (
-                    <div
-                      key={plan.date}
-                      className="p-4 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={() => setSelectedPlan(plan)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="text-center min-w-[100px]">
-                            <p className="font-medium">{formatDate(plan.date)}</p>
-                            <p className="text-xs text-muted-foreground">{getRelativeDate(plan.date)}</p>
-                          </div>
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-sm font-medium">{plan.sessions.length} sessions</span>
-                              <span className="text-sm text-muted-foreground">•</span>
-                              <span className="text-sm text-muted-foreground">{plan.totalHours.toFixed(1)}h</span>
-                              {incompleteSessions > 0 && (
-                                <>
-                                  <span className="text-sm text-muted-foreground">•</span>
-                                  <Badge variant="outline" className="text-xs text-accent">
-                                    {incompleteSessions} incomplete
-                                  </Badge>
-                                </>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Progress value={completionRate} className="w-32 h-2" />
-                              <span className="text-sm text-muted-foreground">{Math.round(completionRate)}% complete</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="ghost">
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </Button>
-                          {incompleteSessions > 0 && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                rolloverIncompleteSessions(plan)
-                              }}
-                            >
-                              <ArrowRight className="h-4 w-4 mr-2" />
-                              Rollover
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  )
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
