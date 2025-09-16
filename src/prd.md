@@ -35,9 +35,14 @@ Students often struggle with:
 - **Success Criteria**: Complete user profile leads to relevant, personalized content
 
 ### 2. AI-Powered Study Planner ("Grade UP")
-- **Functionality**: Generates adaptive study schedules based on user profile, confidence levels, and goals
-- **Purpose**: Provides intelligent, personalized learning paths that adapt to user progress
+- **Functionality**: Generates adaptive study schedules based on user profile, confidence levels, and goals. Features automatic rollover of incomplete sessions to the next day and manual rollover capabilities
+- **Purpose**: Provides intelligent, personalized learning paths that adapt to user progress and ensures continuity
 - **Success Criteria**: Users follow generated plans and show improved confidence over time
+
+### 2.1. Study History & Session Management
+- **Functionality**: Comprehensive view of past study plans with completion tracking, statistics, and ability to manually roll over incomplete sessions to current day
+- **Purpose**: Enables progress review and flexible session management for better study continuity
+- **Success Criteria**: Users can track their study patterns and maintain consistency through session rollover features
 
 ### 3. Mental Wellness Toolkit
 - **Functionality**: Breathing exercises, stress tracking, mindfulness tools, and wellness analytics

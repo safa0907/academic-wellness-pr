@@ -5,6 +5,7 @@ import { Onboarding } from '@/components/Onboarding'
 import { Navigation } from '@/components/Navigation'
 import { Dashboard } from '@/components/Dashboard'
 import { StudyPlanner } from '@/components/StudyPlanner'
+import { StudyHistory } from '@/components/StudyHistory'
 import { Quiz } from '@/components/Quiz'
 import { Wellness } from '@/components/Wellness'
 import { ProgressAnalytics } from '@/components/ProgressAnalytics'
@@ -36,7 +37,9 @@ function App() {
       case 'dashboard':
         return <Dashboard userProfile={userProfile} onNavigate={handleNavigate} />
       case 'planner':
-        return <StudyPlanner userProfile={userProfile} />
+        return <StudyPlanner userProfile={userProfile} onNavigate={handleNavigate} />
+      case 'history':
+        return <StudyHistory userProfile={userProfile} />
       case 'quiz':
         return <Quiz userProfile={userProfile} />
       case 'wellness':

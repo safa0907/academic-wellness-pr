@@ -3,12 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Calendar, Clock, Brain, Sparkle, CheckCircle, Warning, ArrowRight } from '@phosphor-icons/react'
+import { Calendar, Clock, Brain, Sparkle, CheckCircle, Warning, ArrowRight, ClockCounterClockwise } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 
 interface StudyPlannerProps {
   userProfile: any
+  onNavigate?: (view: string) => void
 }
 
 interface StudySession {
@@ -32,7 +33,7 @@ interface StudyPlan {
   focusAreas: string[]
 }
 
-export function StudyPlanner({ userProfile }: StudyPlannerProps) {
+export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
   const [studyPlans, setStudyPlans] = useKV<StudyPlan[]>('study-plans', [])
   const [isGenerating, setIsGenerating] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
@@ -256,6 +257,9 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
     setStudyPlans(updatedPlans)
     setLastRolloverCheck(today)
     
+    // Navigate to today's plan if we were looking at a different date
+    setSelectedDate(today)
+    
     toast.success(
       `${incompleteSessions.length} session${incompleteSessions.length > 1 ? 's' : ''} rolled over to today`,
       {
@@ -340,6 +344,18 @@ export function StudyPlanner({ userProfile }: StudyPlannerProps) {
         </div>
         
         <div className="flex gap-2">
+          {onNavigate && (
+            <Button 
+              onClick={() => onNavigate('history')} 
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <ClockCounterClockwise className="h-4 w-4" />
+              View History
+            </Button>
+          )}
+          
           <Button 
             onClick={manualRollover} 
             variant="outline"

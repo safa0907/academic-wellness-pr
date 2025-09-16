@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { House, Calendar, Brain, Heart, ChartBar, User } from '@phosphor-icons/react'
+import { House, Calendar, Brain, Heart, ChartBar, User, ClockCounterClockwise } from '@phosphor-icons/react'
 import logoSvg from '@/assets/images/GradeUp.svg'
 
 interface NavigationProps {
@@ -13,6 +13,7 @@ interface NavigationProps {
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: House },
   { id: 'planner', label: 'Grade UP', icon: Calendar },
+  { id: 'history', label: 'History', icon: ClockCounterClockwise },
   { id: 'quiz', label: 'Practice', icon: Brain },
   { id: 'wellness', label: 'Wellness', icon: Heart },
   { id: 'progress', label: 'Progress', icon: ChartBar },
