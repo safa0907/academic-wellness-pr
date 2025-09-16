@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { TrendUp, Users, Brain, Heart } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { TrendUp, Users, Heart, Brain } from '@phosphor-icons/react'
 
 interface Stat {
   id: string
@@ -17,7 +18,7 @@ const globalStats: Stat[] = [
     value: '66%',
     description: 'of students worldwide feel stressed about grades',
     category: 'stress',
-    icon: <Brain className="w-5 h-5" />
+    icon: <Heart className="w-5 h-5" />
   },
   {
     id: '2',
@@ -29,44 +30,30 @@ const globalStats: Stat[] = [
   {
     id: '3',
     value: '84%',
-    description: 'of students report better focus after mindfulness practice',
+    description: 'of students report better focus with regular breaks',
     category: 'wellness',
-    icon: <Heart className="w-5 h-5" />
+    icon: <Brain className="w-5 h-5" />
   },
   {
     id: '4',
     value: '92%',
-    description: 'of students improve when they track their progress',
+    description: 'of students feel more confident with consistent practice',
     category: 'achievement',
     icon: <Users className="w-5 h-5" />
   },
   {
     id: '5',
-    value: '45%',
-    description: 'of students struggle with time management',
-    category: 'study',
-    icon: <Brain className="w-5 h-5" />
-  },
-  {
-    id: '6',
     value: '71%',
-    description: 'of students feel more confident with regular practice',
-    category: 'achievement',
-    icon: <TrendUp className="w-5 h-5" />
-  },
-  {
-    id: '7',
-    value: '56%',
-    description: 'of students report sleep issues during exam periods',
-    category: 'wellness',
+    description: 'of students experience exam anxiety regularly',
+    category: 'stress',
     icon: <Heart className="w-5 h-5" />
   },
   {
-    id: '8',
+    id: '6',
     value: '89%',
     description: 'of successful students break study into smaller sessions',
     category: 'study',
-    icon: <Users className="w-5 h-5" />
+    icon: <TrendUp className="w-5 h-5" />
   }
 ]
 
@@ -81,15 +68,15 @@ const categoryLabels = {
   stress: 'Student Wellbeing',
   study: 'Study Habits',
   wellness: 'Mental Health',
-  achievement: 'Academic Success'
+  achievement: 'Achievement'
 }
 
 export function GlobalStats() {
-  const [currentStatIndex, setCurrentStatIndex] = useState(0)
   const [displayedStats, setDisplayedStats] = useState<Stat[]>([])
+  const [currentStatIndex, setCurrentStatIndex] = useState(0)
 
   useEffect(() => {
-    // Shuffle and select 3 random stats
+    // Randomly select 3 stats to display
     const shuffled = [...globalStats].sort(() => Math.random() - 0.5)
     setDisplayedStats(shuffled.slice(0, 3))
   }, [])
@@ -109,44 +96,44 @@ export function GlobalStats() {
   const currentStat = displayedStats[currentStatIndex]
 
   return (
-    <div className="w-full">
-      <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Users className="w-4 h-4" />
-              <span className="text-sm font-medium">Global Student Insights</span>
-            </div>
-            <Badge 
-              variant="secondary" 
-              className={categoryColors[currentStat.category]}
-            >
-              {categoryLabels[currentStat.category]}
-            </Badge>
-          </div>
-          
-          <div
-            key={currentStat.id}
-            className="flex items-center gap-4 transition-all duration-300"
-          >
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
-              {currentStat.icon}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+        <CardContent className="p-0">
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-4">
+              <div className="p-3 rounded-full bg-primary/10 text-primary mr-4">
+                {currentStat.icon}
+              </div>
+              <Badge 
+                className={categoryColors[currentStat.category]}
+                variant="secondary"
+              >
+                {categoryLabels[currentStat.category]}
+              </Badge>
             </div>
             
-            <div className="flex-1">
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-primary">
-                  {currentStat.value}
-                </span>
-                <span className="text-foreground">
-                  {currentStat.description}
-                </span>
+            <motion.div
+              key={currentStat.id}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="mb-4"
+            >
+              <div className="text-4xl font-bold text-primary mb-2">
+                {currentStat.value}
               </div>
-            </div>
+              <p className="text-lg text-foreground leading-relaxed">
+                {currentStat.description}
+              </p>
+            </motion.div>
           </div>
 
-          {/* Indicator dots */}
-          <div className="flex justify-center gap-2 mt-4">
+          {/* Pagination dots */}
+          <div className="flex justify-center space-x-2 mt-6">
             {displayedStats.map((_, index) => (
               <button
                 key={index}
@@ -167,6 +154,6 @@ export function GlobalStats() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   )
 }
