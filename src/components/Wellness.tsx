@@ -8,6 +8,7 @@ import { Heart, Pause, Play, Sparkle, Moon, Sun } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { HSESupport } from '@/components/HSESupport'
 import { GlobalStats } from '@/components/GlobalStats'
+import { ConversationStarters } from '@/components/ConversationStarters'
 
 interface WellnessProps {
   userProfile: any
@@ -318,6 +319,9 @@ export function Wellness({ userProfile }: WellnessProps) {
 
       {/* Global Student Insights - Wellness Focus */}
       <GlobalStats />
+
+      {/* Conversation Starters for Families */}
+      <ConversationStarters userProfile={userProfile} />
 
       {/* High Stress Level Support */}
       {currentStress >= 8 && <HSESupport stressLevel={currentStress} />}
