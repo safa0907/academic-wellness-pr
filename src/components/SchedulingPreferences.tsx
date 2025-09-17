@@ -1,11 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { 
@@ -15,86 +14,85 @@ import {
   Brain
 } from '@phosphor-icons/react'
 
-interface RolloverRule {
-  enabled: boolean
-  maxDays: number
-  priority: 'low' | 'medium' | 'high'
-  timeAdjustment: 'shorter' | 'normal' | 'longer'
-  autoDistribute: boolean
-  skipWeekends: boolean
-}
-
-interface SchedulingPreference {
+interface SchedulingPreferences {
   startTime: string
   endTime: string
-  maxSessionDuration: number
   breakDuration: number
-  preferredDifficulty: 'adaptive' | 'easy-first' | 'hard-first'
+  preferredDifficulty: 'easy' | 'medium' | 'hard'
   studyBursts: boolean
-  weekendStudy: boolean
   notifications: boolean
-  rolloverRules: RolloverRule
+  autoDistribute: boolean
+  rolloverRules: {
+    enabled: boolean
+    priority: 'high' | 'medium' | 'low'
+    maxRolloverDays: number
+    skipWeekends: boolean
+  }
 }
 
-const defaultPreferences: SchedulingPreference = {
+const defaultPreferences: SchedulingPreferences = {
   startTime: '09:00',
   endTime: '17:00',
-  maxSessionDuration: 90,
   breakDuration: 15,
-  preferredDifficulty: 'adaptive',
+  preferredDifficulty: 'medium',
   studyBursts: false,
-  weekendStudy: true,
   notifications: true,
+  autoDistribute: true,
   rolloverRules: {
     enabled: true,
-    maxDays: 3,
     priority: 'medium',
-    timeAdjustment: 'normal',
-    autoDistribute: true,
+    maxRolloverDays: 3,
     skipWeekends: false
   }
 }
 
-interface SchedulingPreferencesProps {
+interface Props {
   userProfile: any
 }
 
-export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProps) {
-  const [preferences, setPreferences] = useKV<SchedulingPreference>('scheduling-preferences', defaultPreferences)
-  const [currentPrefs, setCurrentPrefs] = useState<SchedulingPreference>(preferences || defaultPreferences)
+export function SchedulingPreferences({ userProfile }: Props) {
+  const [preferences, setPreferences] = useKV<SchedulingPreferences>('scheduling-preferences', defaultPreferences)
+  const [currentPrefs, setCurrentPrefs] = useState(preferences || defaultPreferences)
 
-  const updatePreference = (key: keyof SchedulingPreference, value: any) => {
-    const updated = { ...currentPrefs, [key]: value }
-    setCurrentPrefs(updated)
+  // Update currentPrefs when preferences from useKV changes
+  useEffect(() => {
+    if (preferences) {
+      setCurrentPrefs(preferences)
+    }
+  }, [preferences])
+
+  const updatePreference = (key: string, value: any) => {
+    const updated = { ...currentPrefs, [key]: value } as SchedulingPreferences
     setPreferences(updated)
+    setCurrentPrefs(updated)
   }
 
-  const updateRolloverRule = (key: keyof RolloverRule, value: any) => {
-    const updated = {
-      ...currentPrefs,
+  const updateRolloverRule = (key: string, value: any) => {
+    const updated = { 
+      ...currentPrefs, 
       rolloverRules: { ...currentPrefs.rolloverRules, [key]: value }
-    }
-    setCurrentPrefs(updated)
+    } as SchedulingPreferences
     setPreferences(updated)
+    setCurrentPrefs(updated)
   }
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      <div className="space-y-2">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground">Study Preferences</h2>
-        <p className="text-sm sm:text-base text-muted-foreground">
-          Customize your study schedule and learning preferences
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold text-foreground">Scheduling Preferences</h2>
+        <p className="text-muted-foreground">
+          Customize your study schedule to match your learning style and availability
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            Study Time Preferences
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-primary" />
+            Study Schedule
           </CardTitle>
-          <CardDescription className="text-sm">
-            Set your preferred study hours and session structure
+          <CardDescription>
+            Set your preferred study hours and break duration
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -107,7 +105,6 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
                 onChange={(e) => updatePreference('startTime', e.target.value)}
               />
             </div>
-            
             <div className="space-y-2">
               <Label>End Time</Label>
               <Input
@@ -117,33 +114,20 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
               />
             </div>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Break Duration (minutes)</Label>
-              <Input
-                type="number"
-                min="5"
-                max="60"
-                value={currentPrefs.breakDuration}
-                onChange={(e) => updatePreference('breakDuration', parseInt(e.target.value))}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Max Session Duration (minutes)</Label>
-              <Input
-                type="number"
-                min="15"
-                max="180"
-                value={currentPrefs.maxSessionDuration}
-                onChange={(e) => updatePreference('maxSessionDuration', parseInt(e.target.value))}
-              />
-            </div>
+          
+          <div className="space-y-2">
+            <Label>Break Duration (minutes)</Label>
+            <Input
+              type="number"
+              min="5"
+              max="60"
+              value={currentPrefs.breakDuration}
+              onChange={(e) => updatePreference('breakDuration', parseInt(e.target.value))}
+            />
           </div>
 
           <div className="space-y-2">
-            <Label>Study Approach</Label>
+            <Label>Preferred Difficulty</Label>
             <Select 
               value={currentPrefs.preferredDifficulty} 
               onValueChange={(value) => updatePreference('preferredDifficulty', value)}
@@ -152,14 +136,12 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="adaptive">Adaptive (AI decides)</SelectItem>
-                <SelectItem value="easy-first">Easy topics first</SelectItem>
-                <SelectItem value="hard-first">Hard topics first</SelectItem>
+                <SelectItem value="easy">Easy</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="hard">Hard</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          <Separator />
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -177,22 +159,9 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
             
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label>Weekend Study</Label>
-                <p className="text-xs text-muted-foreground">
-                  Include weekends in study planning
-                </p>
-              </div>
-              <Switch
-                checked={currentPrefs.weekendStudy}
-                onCheckedChange={(checked) => updatePreference('weekendStudy', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
                 <Label>Study Reminders</Label>
                 <p className="text-xs text-muted-foreground">
-                  Get notifications for scheduled sessions
+                  Get notifications when it's time to study
                 </p>
               </div>
               <Switch
@@ -206,20 +175,20 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Gear className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+          <CardTitle className="flex items-center gap-2">
+            <Gear className="h-5 w-5 text-primary" />
             Session Rollover Rules
           </CardTitle>
           <CardDescription className="text-sm">
-            Configure how incomplete sessions are handled
+            Control how incomplete sessions are handled
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label>Enable Session Rollover</Label>
+              <Label>Enable Rollover</Label>
               <p className="text-xs text-muted-foreground">
-                Automatically reschedule incomplete sessions
+                Automatically move incomplete sessions to the next day
               </p>
             </div>
             <Switch
@@ -229,18 +198,7 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
           </div>
           
           {currentPrefs.rolloverRules.enabled && (
-            <div className="space-y-4 pt-4 border-t">
-              <div className="space-y-2">
-                <Label>Maximum Rollover Days</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="7"
-                  value={currentPrefs.rolloverRules.maxDays}
-                  onChange={(e) => updateRolloverRule('maxDays', parseInt(e.target.value))}
-                />
-              </div>
-
+            <div className="space-y-4 pl-4 border-l-2 border-muted">
               <div className="space-y-2">
                 <Label>Rollover Priority</Label>
                 <Select 
@@ -251,43 +209,24 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low - Schedule when convenient</SelectItem>
-                    <SelectItem value="medium">Medium - Balance with new content</SelectItem>
-                    <SelectItem value="high">High - Prioritize over new sessions</SelectItem>
+                    <SelectItem value="high">High Priority</SelectItem>
+                    <SelectItem value="medium">Medium Priority</SelectItem>
+                    <SelectItem value="low">Low Priority</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label>Time Adjustment</Label>
-                <Select 
-                  value={currentPrefs.rolloverRules.timeAdjustment} 
-                  onValueChange={(value) => updateRolloverRule('timeAdjustment', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="shorter">Shorter (75% of original time)</SelectItem>
-                    <SelectItem value="normal">Normal (original time)</SelectItem>
-                    <SelectItem value="longer">Longer (125% of original time)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label>Auto-distribute Sessions</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Spread rolled-over sessions across available days
-                  </p>
-                </div>
-                <Switch
-                  checked={currentPrefs.rolloverRules.autoDistribute}
-                  onCheckedChange={(checked) => updateRolloverRule('autoDistribute', checked)}
+                <Label>Max Rollover Days</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="7"
+                  value={currentPrefs.rolloverRules.maxRolloverDays}
+                  onChange={(e) => updateRolloverRule('maxRolloverDays', parseInt(e.target.value))}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label>Skip Weekends</Label>
@@ -307,73 +246,74 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+          <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            Current Configuration
+            Current Settings
           </CardTitle>
-          <CardDescription className="text-sm">
-            Overview of your active study preferences
+          <CardDescription>
+            Overview of your active preferences
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <Badge variant="outline" className="text-xs">
-                Study Hours
-              </Badge>
-              <p className="text-sm font-medium">
+              <Label className="text-xs text-muted-foreground">Study Hours</Label>
+              <Badge variant="secondary" className="text-sm">
                 {currentPrefs.startTime} - {currentPrefs.endTime}
-              </p>
+              </Badge>
             </div>
             
             <div className="space-y-1">
-              <Badge variant="outline" className="text-xs">
-                Session Length
+              <Label className="text-xs text-muted-foreground">Session Length</Label>
+              <Badge variant="secondary" className="text-sm">
+                {currentPrefs.studyBursts ? '25 min bursts' : 'Flexible'}
               </Badge>
-              <p className="text-sm font-medium">
-                {currentPrefs.maxSessionDuration} minutes
-              </p>
             </div>
             
             <div className="space-y-1">
-              <Badge variant="outline" className="text-xs">
-                Break Duration
-              </Badge>
-              <p className="text-sm font-medium">
+              <Label className="text-xs text-muted-foreground">Break Duration</Label>
+              <Badge variant="secondary" className="text-sm">
                 {currentPrefs.breakDuration} minutes
-              </p>
+              </Badge>
             </div>
             
             <div className="space-y-1">
-              <Badge variant={currentPrefs.studyBursts ? "default" : "outline"} className="text-xs">
-                Study Mode
+              <Label className="text-xs text-muted-foreground">Difficulty</Label>
+              <Badge variant="secondary" className="text-sm capitalize">
+                {currentPrefs.preferredDifficulty}
               </Badge>
-              <p className="text-sm font-medium">
-                {currentPrefs.studyBursts ? 'Bursts' : 'Regular'}
-              </p>
+            </div>
+            
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Rollover</Label>
+              <Badge variant={currentPrefs.rolloverRules.enabled ? "default" : "secondary"} className="text-sm">
+                {currentPrefs.rolloverRules.enabled ? 'Enabled' : 'Disabled'}
+              </Badge>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
-        <CardContent className="p-4 sm:p-6">
+      <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
+        <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0 mt-1" />
+            <Brain className="h-6 w-6 text-primary mt-1" />
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-foreground mb-2">AI Learning Assistant</h3>
+              <p className="text-sm font-medium text-foreground mb-2">
+                AI-Powered Optimization
+              </p>
               <p className="text-sm text-muted-foreground mb-3">
-                The system learns from your study patterns and automatically optimizes your schedule for maximum effectiveness.
+                Your preferences will be used to create personalized study plans that adapt to your performance and availability.
               </p>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="outline" className="text-xs">
                   Adaptive Scheduling
                 </Badge>
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="outline" className="text-xs">
                   Performance Tracking
                 </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  Smart Recommendations
+                <Badge variant="outline" className="text-xs">
+                  Smart Rollover
                 </Badge>
               </div>
             </div>
