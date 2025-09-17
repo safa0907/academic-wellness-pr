@@ -26,12 +26,12 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
           Welcome back, {userProfile?.name || 'Student'}! 👋
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground">
           Ready to achieve your learning goals today?
         </p>
       </div>
@@ -40,58 +40,58 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
       <GlobalStats />
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Clock className="h-5 w-5 text-primary" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Today's Focus</p>
-                <p className="text-xl font-semibold">2h 15m</p>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Today's Focus</p>
+                <p className="text-lg sm:text-xl font-semibold">2h 15m</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-secondary/10 rounded-lg">
-                <Heart className="h-5 w-5 text-secondary" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-secondary/10 rounded-lg flex-shrink-0">
+                <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Wellness</p>
-                <p className="text-xl font-semibold">{weeklyProgress.wellnessScore}/10</p>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Wellness</p>
+                <p className="text-lg sm:text-xl font-semibold">{weeklyProgress.wellnessScore}/10</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-accent/5 to-accent/10 border-accent/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-accent/10 rounded-lg">
-                <Target className="h-5 w-5 text-accent" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-accent/10 rounded-lg flex-shrink-0">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Study Streak</p>
-                <p className="text-xl font-semibold">{weeklyProgress.streakDays} days</p>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Study Streak</p>
+                <p className="text-lg sm:text-xl font-semibold">{weeklyProgress.streakDays} days</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-500/5 to-purple-500/10 border-purple-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <TrendUp className="h-5 w-5 text-purple-500" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-purple-500/10 rounded-lg flex-shrink-0">
+                <TrendUp className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Weekly Goal</p>
-                <p className="text-xl font-semibold">{Math.round((weeklyProgress.studyHours / weeklyProgress.goal) * 100)}%</p>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Weekly Goal</p>
+                <p className="text-lg sm:text-xl font-semibold">{Math.round((weeklyProgress.studyHours / weeklyProgress.goal) * 100)}%</p>
               </div>
             </div>
           </CardContent>
@@ -100,39 +100,42 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
 
       {/* Today's Schedule */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-primary" />
                 Today's Study Plan
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="mt-1">
                 Your personalized schedule generated by Grade UP AI
               </CardDescription>
             </div>
-            <Button onClick={() => onNavigate('planner')} variant="outline" size="sm">
+            <Button onClick={() => onNavigate('planner')} variant="outline" size="sm" className="w-full sm:w-auto">
               View Full Plan
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
           {todaySchedule.map((session, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="text-center">
+            <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 bg-muted/50 rounded-lg gap-3">
+              <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                <div className="text-center flex-shrink-0">
                   <p className="text-sm font-medium">{session.time}</p>
                   <p className="text-xs text-muted-foreground">{session.duration}</p>
                 </div>
-                <div>
-                  <p className="font-medium">{session.subject}</p>
+                <div className="min-w-0 flex-1 sm:flex-none">
+                  <p className="font-medium truncate">{session.subject}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <Progress value={session.confidence} className="w-20 h-2" />
-                    <span className="text-xs text-muted-foreground">{session.confidence}% confidence</span>
+                    <Progress value={session.confidence} className="w-16 sm:w-20 h-2" />
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{session.confidence}% confidence</span>
                   </div>
                 </div>
               </div>
-              <Badge variant={session.confidence < 50 ? 'destructive' : session.confidence < 70 ? 'secondary' : 'default'}>
+              <Badge 
+                variant={session.confidence < 50 ? 'destructive' : session.confidence < 70 ? 'secondary' : 'default'}
+                className="text-xs whitespace-nowrap w-full sm:w-auto text-center"
+              >
                 {session.confidence < 50 ? 'Focus Needed' : session.confidence < 70 ? 'Review' : 'Confident'}
               </Badge>
             </div>
@@ -142,18 +145,18 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
 
       {/* Leaving Certificate Preparation */}
       <Card className="bg-gradient-to-br from-purple-500/5 to-indigo-500/10 border-purple-500/20">
-        <CardHeader>
+        <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-purple-600" />
             Leaving Certificate Preparation
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="mt-1">
             Access comprehensive resources and practice materials for your Leaving Cert exams
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-200/50">
-            <div>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 bg-white/50 rounded-lg border border-purple-200/50 gap-3">
+            <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-purple-800 mb-1">GradeUp Coach</h4>
               <p className="text-sm text-purple-700">
                 Chat with your AI coach for personalized study guidance and support
@@ -161,7 +164,7 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
             </div>
             <Button
               onClick={() => window.open('https://nice-coast-0da719e03.2.azurestaticapps.net', '_blank')}
-              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 w-full sm:w-auto"
             >
               <ArrowSquareOut className="h-4 w-4" />
               Chat Now
@@ -171,26 +174,26 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate('quiz')}>
-          <CardContent className="p-6 text-center">
-            <Brain className="h-8 w-8 text-primary mx-auto mb-3" />
+          <CardContent className="p-4 sm:p-6 text-center">
+            <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-primary mx-auto mb-3" />
             <h3 className="font-semibold mb-2">Quick Quiz</h3>
             <p className="text-sm text-muted-foreground">Test your knowledge with adaptive questions</p>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate('wellness')}>
-          <CardContent className="p-6 text-center">
-            <Heart className="h-8 w-8 text-secondary mx-auto mb-3" />
+          <CardContent className="p-4 sm:p-6 text-center">
+            <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mx-auto mb-3" />
             <h3 className="font-semibold mb-2">Wellness Check</h3>
             <p className="text-sm text-muted-foreground">Take a moment for mental health</p>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate('progress')}>
-          <CardContent className="p-6 text-center">
-            <TrendUp className="h-8 w-8 text-accent mx-auto mb-3" />
+          <CardContent className="p-4 sm:p-6 text-center">
+            <TrendUp className="h-6 w-6 sm:h-8 sm:w-8 text-accent mx-auto mb-3" />
             <h3 className="font-semibold mb-2">View Progress</h3>
             <p className="text-sm text-muted-foreground">See your learning analytics</p>
           </CardContent>

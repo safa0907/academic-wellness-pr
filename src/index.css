@@ -9,6 +9,23 @@
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+  
+  /* Hide scrollbars */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Extra small breakpoint for very small devices */
+@media (min-width: 475px) {
+  .xs\:block {
+    display: block;
+  }
 }
 
 :root {

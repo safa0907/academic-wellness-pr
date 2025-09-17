@@ -101,11 +101,11 @@ export function GlobalStats() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+      <Card className="p-4 sm:p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
         <CardContent className="p-0">
           <div className="text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-3 rounded-full bg-primary/10 text-primary mr-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center mb-4 gap-3 sm:gap-0">
+              <div className="p-2 sm:p-3 rounded-full bg-primary/10 text-primary sm:mr-4">
                 {currentStat.icon}
               </div>
               <Badge 
@@ -123,10 +123,10 @@ export function GlobalStats() {
               transition={{ duration: 0.3 }}
               className="mb-4"
             >
-              <div className="text-4xl font-bold text-primary mb-2">
+              <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">
                 {currentStat.value}
               </div>
-              <p className="text-lg text-foreground leading-relaxed">
+              <p className="text-base sm:text-lg text-foreground leading-relaxed px-2">
                 {currentStat.description}
               </p>
             </motion.div>
@@ -147,7 +147,7 @@ export function GlobalStats() {
             ))}
           </div>
           
-          <div className="mt-3 text-center">
+          <div className="mt-3 text-center px-2">
             <p className="text-xs text-muted-foreground">
               You're not alone in your academic journey • Data anonymized from global student surveys
             </p>

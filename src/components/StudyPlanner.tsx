@@ -23,7 +23,7 @@ interface StudySession {
   type: 'review' | 'new' | 'practice'
   confidence: number
   completed?: boolean
-  rolledOver?: boolean // New field to track rolled over sessions
+  rolledOver?: boolean
 }
 
 interface StudyPlan {
@@ -39,16 +39,13 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [lastRolloverCheck, setLastRolloverCheck] = useKV<string>('last-rollover-check', '')
 
-  // Check for incomplete sessions and rollover to next day
+  // Auto rollover effect
   useEffect(() => {
     const checkAndRolloverSessions = () => {
       const today = new Date().toISOString().split('T')[0]
       const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       
-      // Only run rollover once per day
-      if (lastRolloverCheck === today) return
-      
-      if (!studyPlans) return
+      if (lastRolloverCheck === today || !studyPlans) return
       
       const yesterdayPlan = studyPlans.find(p => p.date === yesterday)
       if (!yesterdayPlan) return
@@ -56,22 +53,19 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
       const incompleteSessions = yesterdayPlan.sessions.filter(s => !s.completed)
       
       if (incompleteSessions.length > 0) {
-        // Create new sessions for today with updated times
         const rolledOverSessions: StudySession[] = incompleteSessions.map((session, index) => ({
           ...session,
           id: `rolled-${Date.now()}-${index}`,
           startTime: adjustTimeForRollover(session.startTime, index),
           endTime: adjustTimeForRollover(session.endTime, index),
           completed: false,
-          rolledOver: true // Mark as rolled over
+          rolledOver: true
         }))
         
-        // Find or create today's plan
         const todayPlan = studyPlans.find(p => p.date === today)
         
         const updatedPlans = studyPlans.map(plan => {
           if (plan.date === today) {
-            // Add rolled over sessions to existing plan
             const combinedSessions = [...plan.sessions, ...rolledOverSessions]
             return {
               ...plan,
@@ -82,7 +76,6 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
           return plan
         })
         
-        // If no plan exists for today, create one with rolled over sessions
         if (!todayPlan) {
           const newTodayPlan: StudyPlan = {
             date: today,
@@ -96,41 +89,32 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
         setStudyPlans(updatedPlans)
         setLastRolloverCheck(today)
         
-        toast.success(
-          `${incompleteSessions.length} incomplete session${incompleteSessions.length > 1 ? 's' : ''} moved to today's plan`,
-          {
-            description: "Sessions from yesterday have been automatically rescheduled"
-          }
-        )
+        toast.success(`${incompleteSessions.length} incomplete sessions moved to today's plan`)
       } else {
         setLastRolloverCheck(today)
       }
     }
     
-    // Run check on component mount and when studyPlans change
     checkAndRolloverSessions()
   }, [studyPlans, lastRolloverCheck, setStudyPlans, setLastRolloverCheck])
 
   const adjustTimeForRollover = (timeString: string, index: number): string => {
     const [hours, minutes] = timeString.split(':').map(Number)
-    // Start rolled over sessions a bit later to avoid conflicts
     const adjustedHours = Math.max(9, hours + index)
     return `${adjustedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
   }
 
-  const generateAIPlan = async () => {
+  const generateStudyPlan = async () => {
     setIsGenerating(true)
     
     try {
-      // Simulate AI generation with realistic study plan
       await new Promise(resolve => setTimeout(resolve, 2000))
       
       const subjects = userProfile?.subjects || ['Mathematics', 'Physics', 'Chemistry']
       const confidence = userProfile?.confidence || {}
       
-      // Create sessions based on confidence levels
       const sessions: StudySession[] = []
-      let currentTime = 9 // 9 AM start
+      let currentTime = 9
       
       subjects.slice(0, 3).forEach((subject, index) => {
         const subjectConfidence = confidence[subject] || 50
@@ -156,7 +140,7 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
           confidence: subjectConfidence
         })
         
-        currentTime = endTime + 0.25 // 15 min break
+        currentTime = endTime + 0.25
       })
       
       const newPlan: StudyPlan = {
@@ -171,6 +155,7 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
         [newPlan]
       
       setStudyPlans(updatedPlans)
+      toast.success('AI study plan generated successfully!')
     } finally {
       setIsGenerating(false)
     }
@@ -179,9 +164,9 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
   const getTopicForSubject = (subject: string, type: string): string => {
     const topics: Record<string, Record<string, string[]>> = {
       'Mathematics': {
-        'review': ['Algebra basics', 'Quadratic equations', 'Functions'],
-        'practice': ['Calculus problems', 'Integration exercises', 'Derivatives'],
-        'new': ['Advanced integration', 'Differential equations', 'Linear algebra']
+        'review': ['Algebra basics', 'Geometry formulas', 'Trigonometry'],
+        'practice': ['Calculus problems', 'Statistics exercises', 'Complex numbers'],
+        'new': ['Advanced calculus', 'Linear algebra', 'Probability theory']
       },
       'Physics': {
         'review': ['Newton\'s laws', 'Energy and momentum', 'Waves'],
@@ -229,7 +214,7 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
       rolledOver: true
     }))
     
-    // Update or create today's plan
+    // Update today's plan
     const todayPlan = studyPlans.find(p => p.date === today)
     
     const updatedPlans = studyPlans.map(plan => {
@@ -255,30 +240,20 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
     }
     
     setStudyPlans(updatedPlans)
-    setLastRolloverCheck(today)
-    
-    // Navigate to today's plan if we were looking at a different date
-    setSelectedDate(today)
-    
-    toast.success(
-      `${incompleteSessions.length} session${incompleteSessions.length > 1 ? 's' : ''} rolled over to today`,
-      {
-        description: "Incomplete sessions have been rescheduled"
-      }
-    )
+    toast.success(`${incompleteSessions.length} sessions rolled over to today`)
   }
 
-  const markSessionComplete = (sessionId: string) => {
+  const toggleSessionCompletion = (sessionId: string) => {
     if (!studyPlans) return
     
     const updatedPlans = studyPlans.map(plan => {
       if (plan.date === selectedDate) {
-        return {
-          ...plan,
-          sessions: plan.sessions.map(session => 
-            session.id === sessionId ? { ...session, completed: true } : session
-          )
-        }
+        const updatedSessions = plan.sessions.map(session => 
+          session.id === sessionId 
+            ? { ...session, completed: !session.completed }
+            : session
+        )
+        return { ...plan, sessions: updatedSessions }
       }
       return plan
     })
@@ -287,39 +262,37 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
   }
 
   const currentPlan = studyPlans?.find(p => p.date === selectedDate)
-  const todayPlan = studyPlans?.find(p => p.date === new Date().toISOString().split('T')[0])
-  
   const completedSessions = currentPlan?.sessions.filter(s => s.completed).length || 0
   const totalSessions = currentPlan?.sessions.length || 0
   const rolledOverSessions = currentPlan?.sessions.filter(s => s.rolledOver && !s.completed).length || 0
   const progressPercentage = totalSessions > 0 ? (completedSessions / totalSessions) * 100 : 0
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <Calendar className="h-8 w-8 text-primary" />
-          Grade UP AI Planner
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2 sm:gap-3">
+          <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+          <span className="break-words">Grade UP AI Planner</span>
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground">
           Personalized study schedules powered by artificial intelligence
         </p>
       </div>
 
       {/* AI Banner */}
       <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-secondary/10 border-primary/20">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Sparkle className="h-8 w-8 text-primary" />
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start gap-4">
+            <div className="p-2 sm:p-3 bg-primary/10 rounded-lg flex-shrink-0">
+              <Sparkle className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h3 className="text-lg font-semibold mb-1">AI-Powered Study Planning</h3>
               <p className="text-sm text-muted-foreground mb-3">
                 Grade UP analyzes your confidence levels, learning goals, and available time to create optimized study schedules. 
                 Incomplete sessions are automatically moved to the next day to keep you on track.
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Badge variant="secondary" className="text-xs">Adaptive Scheduling</Badge>
                 <Badge variant="secondary" className="text-xs">Auto Rollover</Badge>
                 <Badge variant="secondary" className="text-xs">Confidence-Based</Badge>
@@ -331,25 +304,25 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
       </Card>
 
       {/* Date Selection & Generation */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium">Plan Date:</label>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
+          <label className="text-sm font-medium whitespace-nowrap">Plan Date:</label>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
+            className="px-3 py-2 border rounded-md text-sm w-full sm:w-auto"
             min={new Date().toISOString().split('T')[0]}
           />
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           {onNavigate && (
             <Button 
               onClick={() => onNavigate('history')} 
               variant="outline"
               size="sm"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full sm:w-auto"
             >
               <ClockCounterClockwise className="h-4 w-4" />
               View History
@@ -357,29 +330,29 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
           )}
           
           <Button 
-            onClick={manualRollover} 
-            variant="outline"
+            onClick={manualRollover}
+            variant="outline" 
             size="sm"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
           >
             <ArrowRight className="h-4 w-4" />
-            Rollover Yesterday
+            Manual Rollover
           </Button>
           
           <Button 
-            onClick={generateAIPlan} 
+            onClick={generateStudyPlan} 
             disabled={isGenerating}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
           >
             {isGenerating ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Generating Plan...
+                <Brain className="h-4 w-4 animate-pulse" />
+                Generating...
               </>
             ) : (
               <>
-                <Brain className="h-4 w-4" />
-                Generate AI Plan
+                <Sparkle className="h-4 w-4" />
+                Generate Plan
               </>
             )}
           </Button>
@@ -388,159 +361,110 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
 
       {/* Plan Overview */}
       {currentPlan && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-primary" />
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Study Time</p>
-                  <p className="text-lg font-semibold">{currentPlan.totalHours.toFixed(1)}h</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total Hours</p>
+                  <p className="text-lg sm:text-xl font-semibold">{currentPlan.totalHours.toFixed(1)}h</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-secondary" />
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-secondary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Completed</p>
-                  <p className="text-lg font-semibold">{completedSessions}/{totalSessions}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Completed</p>
+                  <p className="text-lg sm:text-xl font-semibold">{completedSessions}/{totalSessions}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <ArrowRight className="h-5 w-5 text-accent" />
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2">
+                <Progress value={progressPercentage} className="w-8 h-2" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Rolled Over</p>
-                  <p className="text-lg font-semibold">{rolledOverSessions}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Progress</p>
+                  <p className="text-lg sm:text-xl font-semibold">{Math.round(progressPercentage)}%</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Brain className="h-5 w-5 text-purple-500" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Progress</p>
-                  <p className="text-lg font-semibold">{Math.round(progressPercentage)}%</p>
+          {rolledOverSessions > 0 && (
+            <Card>
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-center gap-2">
+                  <Warning className="h-4 w-4 text-accent" />
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Rolled Over</p>
+                    <p className="text-lg sm:text-xl font-semibold">{rolledOverSessions}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      )}
-
-      {/* Rollover Info */}
-      {currentPlan && rolledOverSessions > 0 && (
-        <Card className="bg-gradient-to-r from-accent/10 to-accent/5 border-accent/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <ArrowRight className="h-5 w-5 text-accent" />
-              <div>
-                <h4 className="font-medium text-accent-foreground">Sessions Moved Forward</h4>
-                <p className="text-sm text-muted-foreground">
-                  {rolledOverSessions} session{rolledOverSessions > 1 ? 's' : ''} from previous days have been automatically added to keep you on track.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Progress Bar */}
-      {currentPlan && totalSessions > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Daily Progress</span>
-              <span className="text-sm text-muted-foreground">{completedSessions}/{totalSessions} sessions</span>
-            </div>
-            <Progress value={progressPercentage} className="h-3" />
-          </CardContent>
-        </Card>
       )}
 
       {/* Study Sessions */}
       {currentPlan ? (
         <Card>
-          <CardHeader>
-            <CardTitle>Study Sessions</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle>Study Sessions for {new Date(selectedDate).toLocaleDateString()}</CardTitle>
             <CardDescription>
-              AI-optimized schedule for {new Date(selectedDate).toLocaleDateString()}
+              Click sessions to mark as completed
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {currentPlan.sessions.map((session, index) => (
+          <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
+            {currentPlan.sessions.map((session) => (
               <div 
                 key={session.id} 
-                className={`p-4 rounded-lg border transition-all ${
+                className={`p-3 sm:p-4 rounded-lg border cursor-pointer transition-colors ${
                   session.completed 
-                    ? 'bg-secondary/10 border-secondary/20' 
-                    : session.rolledOver
-                    ? 'bg-accent/10 border-accent/20'
-                    : 'bg-muted/50 hover:bg-muted/70'
+                    ? 'bg-secondary/20 border-secondary/30' 
+                    : 'bg-muted/50 border-border hover:bg-muted'
                 }`}
+                onClick={() => toggleSessionCompletion(session.id)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="text-center min-w-[80px]">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                    <div className="text-center flex-shrink-0">
                       <p className="text-sm font-medium">{session.startTime}</p>
                       <p className="text-xs text-muted-foreground">{session.duration}min</p>
                     </div>
-                    
-                    <div className="flex-1">
+                    <div className="min-w-0 flex-1 sm:flex-none">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold">{session.subject}</h4>
+                        <p className="font-medium truncate">{session.subject}</p>
                         {session.rolledOver && (
-                          <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/30">
-                            <ArrowRight className="h-3 w-3 mr-1" />
-                            Rolled Over
-                          </Badge>
+                          <Badge variant="outline" className="text-xs">Rolled Over</Badge>
                         )}
-                        <Badge variant="outline" className="text-xs">
-                          {session.type}
-                        </Badge>
-                        <Badge 
-                          variant={
-                            session.difficulty === 'hard' ? 'destructive' :
-                            session.difficulty === 'medium' ? 'secondary' : 'default'
-                          }
-                          className="text-xs"
-                        >
-                          {session.difficulty}
-                        </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{session.topic}</p>
-                      <div className="flex items-center gap-2">
-                        <Progress value={session.confidence} className="w-20 h-2" />
-                        <span className="text-xs text-muted-foreground">{session.confidence}% confidence</span>
+                      <p className="text-sm text-muted-foreground truncate">{session.topic}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Progress value={session.confidence} className="w-16 sm:w-20 h-2" />
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {session.confidence}% confidence
+                        </span>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    {session.completed ? (
-                      <Badge variant="default" className="flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3" />
-                        Complete
-                      </Badge>
-                    ) : (
-                      <Button 
-                        size="sm" 
-                        onClick={() => markSessionComplete(session.id)}
-                        variant="outline"
-                      >
-                        Mark Complete
-                      </Button>
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                    <Badge 
+                      variant={session.difficulty === 'hard' ? 'destructive' : session.difficulty === 'medium' ? 'secondary' : 'default'}
+                      className="text-xs"
+                    >
+                      {session.type} • {session.difficulty}
+                    </Badge>
+                    {session.completed && (
+                      <CheckCircle className="h-5 w-5 text-secondary" />
                     )}
                   </div>
                 </div>
@@ -550,40 +474,25 @@ export function StudyPlanner({ userProfile, onNavigate }: StudyPlannerProps) {
         </Card>
       ) : (
         <Card>
-          <CardContent className="p-12 text-center">
-            <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Study Plan Yet</h3>
-            <p className="text-muted-foreground mb-6">
-              Generate an AI-powered study plan for {new Date(selectedDate).toLocaleDateString()}
+          <CardContent className="p-6 sm:p-12 text-center">
+            <Brain className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Study Plan for This Date</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Generate an AI-powered study plan to get started with your learning journey.
             </p>
-            <Button onClick={generateAIPlan} disabled={isGenerating}>
-              <Brain className="h-4 w-4 mr-2" />
-              Create Your First Plan
+            <Button onClick={generateStudyPlan} disabled={isGenerating}>
+              {isGenerating ? (
+                <>
+                  <Brain className="h-4 w-4 animate-pulse mr-2" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkle className="h-4 w-4 mr-2" />
+                  Generate AI Plan
+                </>
+              )}
             </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Focus Areas */}
-      {currentPlan && currentPlan.focusAreas.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Warning className="h-5 w-5 text-accent" />
-              Recommended Focus Areas
-            </CardTitle>
-            <CardDescription>
-              Subjects identified as needing extra attention based on your confidence levels
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {currentPlan.focusAreas.map((subject, index) => (
-                <Badge key={index} variant="secondary" className="px-3 py-1">
-                  {subject}
-                </Badge>
-              ))}
-            </div>
           </CardContent>
         </Card>
       )}

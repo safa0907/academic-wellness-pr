@@ -61,7 +61,7 @@ function App() {
         userProfile={userProfile}
       />
       
-      <main className="min-h-[calc(100vh-80px)]">
+      <main className="min-h-[calc(100vh-140px)] sm:min-h-[calc(100vh-80px)]">
         {renderCurrentView()}
       </main>
 
