@@ -35,7 +35,7 @@ export function Navigation({ currentView, onNavigate, userProfile }: NavigationP
             />
             <div>
               <h1 className="font-bold text-sm sm:text-lg">GradeUp</h1>
-              <p className="text-xs text-muted-foreground">AI Empowered Family</p>
+              <p className="text-xs text-muted-foreground">AI-Powered Learning</p>
             </div>
           </div>
 
