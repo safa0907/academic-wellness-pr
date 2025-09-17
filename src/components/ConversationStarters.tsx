@@ -5,18 +5,18 @@ import { Badge } from '@/components/ui/badge'
 import { Users, ArrowClockwise, ChatCircle, Heart } from '@phosphor-icons/react'
 
 interface ConversationStartersProps {
-  userProfile: any
+  className?: string
 }
 
 const conversationTopics = [
   {
     category: "Academic Pressure",
     starters: [
-      "What does success mean to you, and how is that different from what others expect?",
-      "When do you feel most confident about your studies, and when do you feel most worried?",
+      "What does success mean to you in your studies?",
       "How can we work together to make studying feel less overwhelming?",
       "What would help you feel more supported during exam season?",
-      "How do you want us to react when you're struggling with schoolwork?"
+      "How do you want us to react when you're struggling with schoolwork?",
+      "What are your biggest worries about the Leaving Certificate?"
     ]
   },
   {
@@ -30,56 +30,20 @@ const conversationTopics = [
     ]
   },
   {
-    category: "Communication & Support",
+    category: "Balance & Wellbeing",
     starters: [
-      "How do you prefer to talk about school - regularly or only when something's wrong?",
-      "What questions can we ask that feel supportive rather than stressful?",
-      "How can we show we're proud of your effort, not just your grades?",
-      "What's one thing we could do differently to help you feel more understood?",
-      "How can we be your biggest cheerleaders while still being realistic?"
-    ]
-  },
-  {
-    category: "Future & Expectations",
-    starters: [
-      "What are your own dreams and goals, separate from what others expect?",
-      "How do you want to handle it if your interests change or evolve?",
-      "What does 'doing your best' mean to you personally?",
-      "How can we support your goals while keeping life balanced and enjoyable?",
-      "What would you want us to remember about this time in your life years from now?"
-    ]
-  },
-  {
-    category: "Balance & Well-being",
-    starters: [
-      "What activities or hobbies help you feel most like yourself?",
-      "How can we make sure studying doesn't take over everything else in your life?",
-      "What would an ideal study day look like for you?",
-      "How can we help you maintain friendships and fun while working toward your goals?",
-      "What are some ways we can celebrate progress, not just final results?"
+      "What activities help you recharge after studying?",
+      "How can we make sure you're getting enough rest and fun time?",
+      "What does a good balance between study and relaxation look like for you?",
+      "How can we help you maintain friendships during busy study periods?",
+      "What are your non-academic goals and interests right now?"
     ]
   }
 ]
 
-export function ConversationStarters({ userProfile }: ConversationStartersProps) {
+export function ConversationStarters({ className }: ConversationStartersProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [currentStarter, setCurrentStarter] = useState<string>("")
-
-  const getRandomStarter = (category?: string) => {
-    let availableStarters: string[] = []
-    
-    if (category) {
-      const topic = conversationTopics.find(t => t.category === category)
-      availableStarters = topic?.starters || []
-    } else {
-      availableStarters = conversationTopics.flatMap(topic => topic.starters)
-    }
-    
-    if (availableStarters.length > 0) {
-      const randomIndex = Math.floor(Math.random() * availableStarters.length)
-      setCurrentStarter(availableStarters[randomIndex])
-    }
-  }
 
   const handleCategorySelect = (category: string) => {
     if (selectedCategory === category) {
@@ -87,107 +51,108 @@ export function ConversationStarters({ userProfile }: ConversationStartersProps)
       setCurrentStarter("")
     } else {
       setSelectedCategory(category)
-      getRandomStarter(category)
+      // Get a random starter from the selected category
+      const topic = conversationTopics.find(t => t.category === category)
+      if (topic && topic.starters.length > 0) {
+        const randomStarter = topic.starters[Math.floor(Math.random() * topic.starters.length)]
+        setCurrentStarter(randomStarter)
+      }
+    }
+  }
+
+  const generateNewStarter = () => {
+    let availableStarters: string[] = []
+    
+    if (selectedCategory) {
+      const topic = conversationTopics.find(t => t.category === selectedCategory)
+      availableStarters = topic?.starters || []
+    } else {
+      availableStarters = conversationTopics.flatMap(topic => topic.starters)
+    }
+    
+    if (availableStarters.length > 0) {
+      const randomStarter = availableStarters[Math.floor(Math.random() * availableStarters.length)]
+      setCurrentStarter(randomStarter)
     }
   }
 
   return (
-    <Card className="bg-gradient-to-br from-blue-50/50 to-purple-50/50 border-blue-200/30">
+    <Card className={`bg-gradient-to-br from-blue-50/50 to-purple-50/50 border-blue-200/50 ${className}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5 text-blue-600" />
           Family Conversation Starters
         </CardTitle>
         <CardDescription>
-          Thoughtful questions to help families discuss stress, expectations, and support in a caring way
+          Start meaningful conversations with your family about stress, school, and wellbeing
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Category Selection */}
+      
+      <CardContent className="space-y-4">
         <div className="space-y-3">
-          <h4 className="font-semibold text-sm text-muted-foreground">Choose a topic:</h4>
           <div className="flex flex-wrap gap-2">
             {conversationTopics.map((topic) => (
               <Badge
                 key={topic.category}
-                variant={selectedCategory === topic.category ? "default" : "outline"}
-                className="cursor-pointer transition-colors hover:bg-primary/10"
+                variant={selectedCategory === topic.category ? "default" : "secondary"}
+                className="cursor-pointer hover:bg-blue-100 transition-colors"
                 onClick={() => handleCategorySelect(topic.category)}
               >
                 {topic.category}
               </Badge>
             ))}
           </div>
-        </div>
 
-        {/* Current Conversation Starter */}
-        {currentStarter && (
-          <div className="bg-white/70 border border-blue-200/50 rounded-lg p-4 space-y-4">
-            <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 p-4 bg-white/60 rounded-lg border border-blue-100">
+            <div className="flex items-center gap-2">
               <ChatCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-blue-900">Conversation Starter:</p>
-                <p className="text-foreground leading-relaxed">{currentStarter}</p>
-              </div>
+              <p className="text-sm font-medium text-blue-900">Conversation Starter:</p>
             </div>
-            
-            <div className="flex gap-2 pt-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => getRandomStarter(selectedCategory || undefined)}
-                className="flex items-center gap-1"
-              >
-                <ArrowClockwise className="h-3 w-3" />
-                New Question
-              </Button>
-            </div>
-          </div>
-        )}
 
-        {/* Get Started */}
-        {!currentStarter && (
-          <div className="text-center py-6">
-            <Button 
-              onClick={() => getRandomStarter()}
-              className="flex items-center gap-2"
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateNewStarter}
+              className="ml-auto"
             >
-              <ChatCircle className="h-4 w-4" />
-              Get a Random Starter
+              <ArrowClockwise className="h-4 w-4" />
             </Button>
           </div>
-        )}
 
-        {/* Tips for Conversations */}
-        <div className="bg-amber-50/50 border border-amber-200/50 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <Heart className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-            <div className="space-y-2">
-              <h4 className="font-semibold text-amber-900">Tips for Meaningful Conversations</h4>
-              <ul className="text-sm text-amber-800 space-y-1">
-                <li>• Choose a relaxed time when everyone can focus</li>
-                <li>• Listen without immediately offering solutions</li>
-                <li>• Share your own feelings and experiences too</li>
-                <li>• Focus on understanding rather than being right</li>
-                <li>• Remember that these conversations build trust over time</li>
-              </ul>
+          {!currentStarter && (
+            <Button 
+              onClick={generateNewStarter}
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              <ChatCircle className="h-4 w-4 mr-2" />
+              Generate Conversation Starter
+            </Button>
+          )}
+
+          {currentStarter && (
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-blue-900 font-medium mb-3">"{currentStarter}"</p>
+              
+              <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Heart className="h-4 w-4 text-amber-600" />
+                  <span className="text-sm font-medium text-amber-800">Tips for a good conversation:</span>
+                </div>
+                <ul className="text-sm text-amber-800 space-y-1">
+                  <li>• Listen without immediately trying to solve problems</li>
+                  <li>• Focus on understanding their perspective</li>
+                  <li>• Ask follow-up questions to show you care</li>
+                  <li>• Share your own feelings and experiences when appropriate</li>
+                </ul>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Why These Conversations Matter */}
-        <div className="space-y-3">
-          <h4 className="font-semibold text-sm">Why Family Conversations Help:</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="text-sm space-y-1">
-              <p className="font-medium text-blue-900">For Students:</p>
-              <p className="text-muted-foreground">Reduces isolation, builds confidence, and provides emotional support during challenging times.</p>
-            </div>
-            <div className="text-sm space-y-1">
-              <p className="font-medium text-purple-900">For Families:</p>
-              <p className="text-muted-foreground">Creates understanding, strengthens relationships, and helps everyone work together effectively.</p>
-            </div>
-          </div>
+        <div className="space-y-2 pt-2 border-t border-blue-100">
+          <p className="text-xs text-muted-foreground">
+            Regular family conversations about mental health help normalize these topics and create a supportive environment for academic success.
+          </p>
         </div>
       </CardContent>
     </Card>

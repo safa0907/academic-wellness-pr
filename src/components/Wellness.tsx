@@ -321,7 +321,7 @@ export function Wellness({ userProfile }: WellnessProps) {
       <GlobalStats />
 
       {/* Conversation Starters for Families */}
-      <ConversationStarters userProfile={userProfile} />
+      <ConversationStarters />
 
       {/* High Stress Level Support */}
       {currentStress >= 8 && <HSESupport stressLevel={currentStress} />}
