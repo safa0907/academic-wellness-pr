@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { GlobalStats } from '@/components/GlobalStats'
-import { BookOpen, Brain, Heart, TrendUp, Target, Clock, GraduationCap, ArrowSquareOut } from '@phosphor-icons/react'
+import { BookOpen, Brain, Heart, TrendUp, Target, Clock, GraduationCap, ArrowSquareOut, Trophy, Medal, Star } from '@phosphor-icons/react'
+import { useKV } from '@github/spark/hooks'
 
 interface DashboardProps {
   userProfile: any
@@ -12,6 +13,26 @@ interface DashboardProps {
 }
 
 export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
+  const [quizHistory] = useKV<any[]>('quiz-history', [])
+  const [studyPlans] = useKV<any[]>('study-plans', [])
+  const [wellnessData] = useKV<any>('wellness-data', { stressLevels: [], breathingSessions: [] })
+
+  // Calculate basic achievement metrics
+  const totalQuizzes = quizHistory?.length || 0
+  const averageScore = quizHistory?.length ? 
+    Math.round((quizHistory.reduce((sum: number, quiz: any) => sum + (quiz.score / quiz.totalQuestions), 0) / quizHistory.length) * 100) : 0
+  const totalStudySessions = studyPlans?.reduce((sum: number, plan: any) => 
+    sum + (plan.sessions?.filter((s: any) => s.completed).length || 0), 0) || 0
+  const totalStudyHours = studyPlans?.reduce((sum: number, plan: any) => 
+    sum + (plan.sessions?.filter((s: any) => s.completed).reduce((sessionSum: number, session: any) => 
+      sessionSum + (session.duration / 60), 0) || 0), 0) || 0
+
+  // Simple achievement checks
+  const recentAchievements: Array<{title: string, icon: React.ReactNode, type: string}> = []
+  if (totalStudySessions >= 1) recentAchievements.push({ title: 'First Steps', icon: <BookOpen className="h-4 w-4" />, type: 'bronze' })
+  if (averageScore >= 80) recentAchievements.push({ title: 'Quiz Master', icon: <Star className="h-4 w-4" />, type: 'gold' })
+  if (totalStudyHours >= 20) recentAchievements.push({ title: 'Dedicated Learner', icon: <Trophy className="h-4 w-4" />, type: 'silver' })
+
   const todaySchedule = [
     { subject: 'Mathematics', time: '9:00 AM', duration: '45 min', confidence: 65 },
     { subject: 'Physics', time: '2:00 PM', duration: '60 min', confidence: 45 },
@@ -199,6 +220,52 @@ export function Dashboard({ userProfile, onNavigate }: DashboardProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Achievements Preview */}
+      {recentAchievements.length > 0 && (
+        <Card className="bg-gradient-to-br from-accent/5 to-secondary/5 border-accent/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-accent" />
+              Recent Achievements
+            </CardTitle>
+            <CardDescription>
+              Congratulations on your learning milestones!
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {recentAchievements.slice(0, 3).map((achievement, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
+                  <div className={`p-2 rounded-full ${
+                    achievement.type === 'gold' ? 'bg-yellow-100 text-yellow-700' :
+                    achievement.type === 'silver' ? 'bg-slate-100 text-slate-700' :
+                    'bg-amber-100 text-amber-700'
+                  }`}>
+                    {achievement.icon}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{achievement.title}</p>
+                    <Badge variant="outline" className="text-xs">
+                      {achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+              {recentAchievements.length > 3 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => onNavigate('progress')}
+                  className="w-full"
+                >
+                  View All Achievements
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

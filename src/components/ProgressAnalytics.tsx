@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { ChartBar, TrendUp, Clock, Target, Calendar, BookOpen } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
+import { AchievementBadges } from './AchievementBadges'
 
 interface ProgressAnalyticsProps {
   userProfile: any
@@ -276,54 +277,7 @@ export function ProgressAnalytics({ userProfile }: ProgressAnalyticsProps) {
       </Card>
 
       {/* Achievements */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Achievements</CardTitle>
-          <CardDescription>
-            Celebrate your learning milestones
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {averageScore >= 80 && (
-              <div className="flex items-center gap-3 p-3 bg-secondary/10 rounded-lg">
-                <div className="text-2xl">🏆</div>
-                <div>
-                  <p className="font-medium">Quiz Master</p>
-                  <p className="text-sm text-muted-foreground">Maintained 80%+ average score</p>
-                </div>
-              </div>
-            )}
-            
-            {totalStudyHours >= 10 && (
-              <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg">
-                <div className="text-2xl">📚</div>
-                <div>
-                  <p className="font-medium">Dedicated Learner</p>
-                  <p className="text-sm text-muted-foreground">Completed 10+ hours of study</p>
-                </div>
-              </div>
-            )}
-            
-            {averageStress <= 5 && recentStressLevels.length >= 3 && (
-              <div className="flex items-center gap-3 p-3 bg-accent/10 rounded-lg">
-                <div className="text-2xl">🧘</div>
-                <div>
-                  <p className="font-medium">Stress Manager</p>
-                  <p className="text-sm text-muted-foreground">Maintained low stress levels</p>
-                </div>
-              </div>
-            )}
-            
-            {totalQuizzes === 0 && totalStudyHours === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <TrendUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Start studying and taking quizzes to unlock achievements!</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <AchievementBadges userProfile={userProfile} />
     </div>
   )
 }
