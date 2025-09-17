@@ -31,7 +31,7 @@ export function Navigation({ currentView, onNavigate, userProfile }: NavigationP
             <img 
               src={logoSvg} 
               alt="GradeUp Logo" 
-              className="h-8 sm:h-12 w-auto"
+              className="h-10 sm:h-16 w-auto"
             />
             <div className="hidden xs:block">
               <h1 className="font-bold text-sm sm:text-lg">GradeUp</h1>
