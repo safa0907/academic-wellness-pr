@@ -1,19 +1,19 @@
 import React from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useKV } from '@github/spark/hooks'
-import { Trophy, Target, Crown, Star, Lightning, BookOpen, Brain, Heart } from '@phosphor-icons/react'
+import { Card, CardContent, CardHeader, CardT
+import { Trophy, Target, Crown, Star, Lightning, BookOpen, Brain, Heart } from 
+interface AchievementBadgesProps {
+import { Trophy, Target, Crown, Star, Zap, BookOpen, Brain, Heart } from '@phosphor-icons/react'
 
 interface AchievementBadgesProps {
   userProfile: any
-}
+ 
 
-interface Achievement {
-  id: string
-  title: string
-  description: string
-  icon: React.ReactNode
-  type: 'bronze' | 'silver' | 'gold' | 'platinum'
+
+  // Study A
+    id: 'first-
+    description: 'Com
+    type: 'bronze',
+    progress: (data) => ({ current: Math.min(data
   condition: (data: any) => boolean
   progress?: (data: any) => { current: number; target: number }
   category: 'study' | 'quiz' | 'wellness' | 'consistency' | 'improvement'
@@ -26,41 +26,41 @@ const achievements: Achievement[] = [
     title: 'First Steps',
     description: 'Complete your first study session',
     icon: <Target className="h-5 w-5" />,
-    type: 'bronze',
+  },
     condition: (data) => data.totalStudySessions >= 1,
     progress: (data) => ({ current: Math.min(data.totalStudySessions, 1), target: 1 }),
     category: 'study'
-  },
-  {
-    id: 'study-warrior',
-    title: 'Study Warrior',
-    description: 'Complete 25 study sessions',
-    icon: <Target className="h-5 w-5" />,
-    type: 'silver',
-    condition: (data) => data.totalStudySessions >= 25,
-    progress: (data) => ({ current: Math.min(data.totalStudySessions, 25), target: 25 }),
-    category: 'study'
-  },
-  {
-    id: 'study-master',
-    title: 'Study Master',
-    description: 'Complete 100 study sessions',
-    icon: <Crown className="h-5 w-5" />,
+    
+   
     type: 'gold',
-    condition: (data) => data.totalStudySessions >= 100,
-    progress: (data) => ({ current: Math.min(data.totalStudySessions, 100), target: 100 }),
-    category: 'study'
+    progress: (data) => ({ 
   },
-  {
-    id: 'dedicated-learner',
-    title: 'Dedicated Learner',
-    description: 'Study for 20+ hours total',
-    icon: <Trophy className="h-5 w-5" />,
+  // Quiz Achievements
+    id: 'quiz-start
+    description: 'Complete your first quiz',
+    type: 'bronze',
+    progress: (data) 
+  },
+   
+    description: 'Get a
+    type: 'gold',
+    progress: (data) => ({ current: Math.min(da
+  },
+    id: 'high-ach
+    description: 'Maintain 80%+ average score',
     type: 'silver',
-    condition: (data) => data.totalStudyHours >= 20,
-    progress: (data) => ({ current: Math.min(data.totalStudyHours, 20), target: 20 }),
-    category: 'study'
-  },
+    category: 'quiz'
+
+  {
+    title: 'Mindful Moment',
+    icon: <Heart className="h-5
+    condition: (data) => data.breathingSessio
+    category: 'wellness'
+  {
+    title: 'Stress Manager',
+    icon: <Heart className="h-5 w-5" />,
+    condition: (data)
+    
   {
     id: 'scholar',
     title: 'Scholar',
@@ -112,9 +112,9 @@ const achievements: Achievement[] = [
     type: 'bronze',
     condition: (data) => data.breathingSessions >= 1,
     progress: (data) => ({ current: Math.min(data.breathingSessions, 1), target: 1 }),
-    category: 'wellness'
+
   },
-  {
+   
     id: 'stress-manager',
     title: 'Stress Manager',
     description: 'Track stress for 7 days',
@@ -138,15 +138,15 @@ const achievements: Achievement[] = [
   // Consistency Achievements
   {
     id: 'consistent-learner',
-    title: 'Consistent Learner',
+      }
     description: 'Study for 7 consecutive days',
-    icon: <Lightning className="h-5 w-5" />,
+    icon: <Zap className="h-5 w-5" />,
     type: 'silver',
     condition: (data) => data.studyStreak >= 7,
     progress: (data) => ({ current: Math.min(data.studyStreak, 7), target: 7 }),
     category: 'consistency'
   },
-  {
+  c
     id: 'unstoppable',
     title: 'Unstoppable',
     description: 'Study for 30 consecutive days',
@@ -154,42 +154,42 @@ const achievements: Achievement[] = [
     type: 'platinum',
     condition: (data) => data.studyStreak >= 30,
     progress: (data) => ({ current: Math.min(data.studyStreak, 30), target: 30 }),
-    category: 'consistency'
+  const recentStressLevels 
   },
 
   // Improvement Achievements
-  {
+
     id: 'rising-star',
-    title: 'Rising Star',
+
     description: 'Improve average score by 20+ points',
-    icon: <Star className="h-5 w-5" />,
+      sessionSum + (session.duration / 
     type: 'gold',
     condition: (data) => data.maxImprovement >= 20,
     progress: (data) => ({ current: Math.min(data.maxImprovement, 20), target: 20 }),
     category: 'improvement'
   }
-]
+ 
 
 const getBadgeStyle = (type: string, earned: boolean) => {
   if (!earned) {
-    return {
+  }, 0) || 0
       gradient: 'from-gray-200 to-gray-300',
-      border: 'border-gray-300',
+    totalQuizzes,
       icon: 'text-gray-400',
-      bg: 'bg-gray-50'
+    averageStress,
     }
-  }
+   
 
-  switch (type) {
+    maxImprovemen
     case 'bronze':
-      return {
+  // Group ach
         gradient: 'from-amber-200 to-amber-400',
         border: 'border-amber-400',
         icon: 'text-amber-700',
         bg: 'bg-amber-50'
-      }
+    wel
     case 'silver':
-      return {
+  }
         gradient: 'from-slate-200 to-slate-400',
         border: 'border-slate-400',
         icon: 'text-slate-700',
@@ -200,23 +200,23 @@ const getBadgeStyle = (type: string, earned: boolean) => {
         gradient: 'from-yellow-200 to-yellow-400',
         border: 'border-yellow-400',
         icon: 'text-yellow-700',
-        bg: 'bg-yellow-50'
+              {categoryNam
       }
-    case 'platinum':
+          <CardConte
       return {
         gradient: 'from-purple-200 to-purple-400',
         border: 'border-purple-400',
         icon: 'text-purple-700',
         bg: 'bg-purple-50'
-      }
+       
     default:
       return {
         gradient: 'from-gray-200 to-gray-300',
         border: 'border-gray-300',
         icon: 'text-gray-400',
-        bg: 'bg-gray-50'
+                      </
       }
-  }
+   
 }
 
 export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
@@ -224,7 +224,7 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
   const [wellnessData] = useKV<any>('wellness-data', { stressLevels: [], breathingSessions: [] })
   const [studyPlans] = useKV<any[]>('study-plans', [])
 
-  // Calculate metrics for achievement conditions
+                      <h3 className={`font-semibo
   const totalQuizzes = quizHistory?.length || 0
   const averageScore = quizHistory?.length ? 
     Math.round((quizHistory.reduce((sum: number, quiz: any) => sum + (quiz.score / quiz.totalQuestions), 0) / quizHistory.length) * 100) : 0
@@ -244,7 +244,7 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
 
   const totalStudyHours = studyPlans?.reduce((sum: number, plan: any) => 
     sum + (plan.sessions?.filter((s: any) => s.completed).reduce((sessionSum: number, session: any) => 
-      sessionSum + (session.duration / 60), 0) || 0), 0) || 0
+                  </div>
 
   // Calculate study streak (simplified)
   const studyStreak = Math.min(totalStudySessions, 30) // Simplified for demo
@@ -258,21 +258,21 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
     const initialConfidence = userProfile?.confidence?.[subject] || 50
     const improvement = avgScore - initialConfidence
     
-    return Math.max(max, improvement)
+            <div className="w-full bg
   }, 0) || 0
 
   const data = {
-    totalQuizzes,
+          </div>
     averageScore,
-    perfectScores,
+    </div>
     averageStress,
-    recentStressEntries,
+
     breathingSessions,
     totalStudySessions,
     totalStudyHours,
     studyStreak,
     maxImprovement
-  }
+
 
   // Group achievements by category
   const groupedAchievements = achievements.reduce((groups: any, achievement) => {
@@ -280,17 +280,17 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
     if (!groups[category]) groups[category] = []
     groups[category].push(achievement)
     return groups
-  }, {})
 
-  const categoryNames = {
+
+
     study: 'Study Achievements',
     quiz: 'Quiz Achievements',
     wellness: 'Wellness Achievements',
-    consistency: 'Consistency Achievements',
-    improvement: 'Improvement Achievements'
-  }
 
-  return (
+    improvement: 'Improvement Achievements'
+
+
+
     <div className="space-y-6">
       {Object.entries(groupedAchievements).map(([category, categoryAchievements]: [string, any]) => (
         <Card key={category}>
@@ -299,16 +299,16 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
               {category === 'study' && <BookOpen className="h-5 w-5 text-primary" />}
               {category === 'quiz' && <Brain className="h-5 w-5 text-accent" />}
               {category === 'wellness' && <Heart className="h-5 w-5 text-secondary" />}
-              {category === 'consistency' && <Lightning className="h-5 w-5 text-purple-500" />}
+              {category === 'consistency' && <Zap className="h-5 w-5 text-purple-500" />}
               {category === 'improvement' && <Star className="h-5 w-5 text-yellow-500" />}
               {categoryNames[category as keyof typeof categoryNames]}
-            </CardTitle>
+
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {categoryAchievements.map((achievement: Achievement) => {
                 const earned = achievement.condition(data)
-                const progress = achievement.progress?.(data)
+
                 const style = getBadgeStyle(achievement.type, earned)
 
                 return (
@@ -316,7 +316,7 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
                     key={achievement.id}
                     className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${style.border} ${style.bg} ${
                       earned ? 'shadow-md hover:shadow-lg' : 'opacity-60'
-                    }`}
+
                   >
                     {/* Badge Icon */}
                     <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${style.gradient} flex items-center justify-center mb-3 mx-auto`}>
@@ -330,9 +330,9 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
                       <Badge 
                         variant={earned ? "default" : "secondary"}
                         className={`text-xs font-medium ${earned ? '' : 'opacity-50'}`}
-                      >
+
                         {achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
-                      </Badge>
+
                     </div>
 
                     {/* Achievement Info */}
@@ -342,7 +342,7 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
                       </h3>
                       <p className={`text-xs ${earned ? 'text-muted-foreground' : 'text-muted-foreground/70'}`}>
                         {achievement.description}
-                      </p>
+
                     </div>
 
                     {/* Progress Bar */}
@@ -368,11 +368,11 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
                       </div>
                     )}
                   </div>
-                )
+
               })}
-            </div>
+
           </CardContent>
-        </Card>
+
       ))}
 
       {/* Achievement Summary */}
@@ -382,21 +382,21 @@ export function AchievementBadges({ userProfile }: AchievementBadgesProps) {
             <div className="flex justify-center">
               <Trophy className="h-12 w-12 text-accent" />
             </div>
-            <div>
+
               <h3 className="text-xl font-bold text-foreground">Achievement Progress</h3>
               <p className="text-muted-foreground mt-2">
                 You've earned {achievements.filter(a => a.condition(data)).length} out of {achievements.length} achievements!
-              </p>
+
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div 
                 className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-1000"
                 style={{ width: `${(achievements.filter(a => a.condition(data)).length / achievements.length) * 100}%` }}
-              />
+
             </div>
           </div>
         </CardContent>
-      </Card>
+
     </div>
-  )
+
 }
