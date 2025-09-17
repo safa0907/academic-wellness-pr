@@ -2,32 +2,24 @@ import React, { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { 
-  Clock, 
-  Brain, 
-  Gear, 
-  ArrowRight, 
   CheckCircle,
-  Shield,
-  User
+  Clock, 
+  Gear, 
+  Brain
 } from '@phosphor-icons/react'
-import { toast } from 'sonner'
-
-interface SchedulingPreferencesProps {
-  userProfile: any
-}
 
 interface RolloverRule {
   enabled: boolean
   maxDays: number
-  priority: 'high' | 'medium' | 'low'
-  timeAdjustment: 'early' | 'normal' | 'late'
+  priority: 'low' | 'medium' | 'high'
+  timeAdjustment: 'shorter' | 'normal' | 'longer'
   autoDistribute: boolean
   skipWeekends: boolean
 }
@@ -63,187 +55,118 @@ const defaultPreferences: SchedulingPreference = {
   }
 }
 
+interface SchedulingPreferencesProps {
+  userProfile: any
+}
+
 export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProps) {
   const [preferences, setPreferences] = useKV<SchedulingPreference>('scheduling-preferences', defaultPreferences)
-  const [hasChanges, setHasChanges] = useState(false)
-
-  // Ensure preferences is never undefined
-  const currentPrefs = preferences || defaultPreferences
+  const [currentPrefs, setCurrentPrefs] = useState<SchedulingPreference>(preferences || defaultPreferences)
 
   const updatePreference = (key: keyof SchedulingPreference, value: any) => {
-    setPreferences((current) => {
-      const currentPrefs = current || defaultPreferences
-      return { ...currentPrefs, [key]: value }
-    })
-    setHasChanges(true)
+    const updated = { ...currentPrefs, [key]: value }
+    setCurrentPrefs(updated)
+    setPreferences(updated)
   }
 
   const updateRolloverRule = (key: keyof RolloverRule, value: any) => {
-    setPreferences((current) => {
-      const currentPrefs = current || defaultPreferences
-      return {
-        ...currentPrefs,
-        rolloverRules: {
-          ...currentPrefs.rolloverRules,
-          [key]: value
-        }
-      }
-    })
-    setHasChanges(true)
-  }
-
-  const resetToDefaults = () => {
-    setPreferences(defaultPreferences)
-    setHasChanges(true)
-    toast.success('Preferences reset to defaults')
-  }
-
-  const savePreferences = () => {
-    // Validate preferences
-    if (currentPrefs.startTime >= currentPrefs.endTime) {
-      toast.error('Start time must be before end time')
-      return
+    const updated = {
+      ...currentPrefs,
+      rolloverRules: { ...currentPrefs.rolloverRules, [key]: value }
     }
-
-    if (currentPrefs.breakDuration < 5 || currentPrefs.breakDuration > 60) {
-      toast.error('Break duration must be between 5 and 60 minutes')
-      return
-    }
-
-    if (currentPrefs.maxSessionDuration < 15 || currentPrefs.maxSessionDuration > 180) {
-      toast.error('Max session duration must be between 15 and 180 minutes')
-      return
-    }
-
-    setHasChanges(false)
-    toast.success('Scheduling preferences saved successfully', {
-      description: 'Your AI study planner will now use these settings'
-    })
+    setCurrentPrefs(updated)
+    setPreferences(updated)
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2 sm:gap-3">
-          <Gear className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-          <span className="break-words">Scheduling Preferences</span>
-        </h1>
+    <div className="space-y-6 p-4 sm:p-6">
+      <div className="space-y-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">Study Preferences</h2>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Customize how your AI study planner creates schedules and handles incomplete sessions
+          Customize your study schedule and learning preferences
         </p>
       </div>
 
-      {/* Save Controls */}
-      {hasChanges && (
-        <Card className="bg-gradient-to-r from-accent/10 to-accent/5 border-accent/20">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <Shield className="h-5 w-5 text-accent flex-shrink-0" />
-                <div>
-                  <h4 className="font-medium">Unsaved Changes</h4>
-                  <p className="text-sm text-muted-foreground">
-                    You have unsaved preference changes
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2 w-full sm:w-auto">
-                <Button variant="outline" size="sm" onClick={resetToDefaults} className="flex-1 sm:flex-none">
-                  Reset
-                </Button>
-                <Button size="sm" onClick={savePreferences} className="flex-1 sm:flex-none">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Study Time Preferences */}
       <Card>
-        <CardHeader className="p-4 sm:p-6">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Clock className="h-5 w-5 text-primary" />
+            <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             Study Time Preferences
           </CardTitle>
           <CardDescription className="text-sm">
             Set your preferred study hours and session structure
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start-time">Study Start Time</Label>
+              <Label>Start Time</Label>
               <Input
-                id="start-time"
                 type="time"
                 value={currentPrefs.startTime}
                 onChange={(e) => updatePreference('startTime', e.target.value)}
               />
             </div>
-
+            
             <div className="space-y-2">
-              <Label htmlFor="end-time">Study End Time</Label>
+              <Label>End Time</Label>
               <Input
-                id="end-time"
                 type="time"
                 value={currentPrefs.endTime}
                 onChange={(e) => updatePreference('endTime', e.target.value)}
               />
             </div>
+          </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="break-duration">Break Duration (minutes)</Label>
+              <Label>Break Duration (minutes)</Label>
               <Input
-                id="break-duration"
                 type="number"
                 min="5"
                 max="60"
                 value={currentPrefs.breakDuration}
-                onChange={(e) => updatePreference('breakDuration', parseInt(e.target.value) || 15)}
+                onChange={(e) => updatePreference('breakDuration', parseInt(e.target.value))}
               />
             </div>
-
+            
             <div className="space-y-2">
-              <Label htmlFor="max-session">Max Session Duration (minutes)</Label>
+              <Label>Max Session Duration (minutes)</Label>
               <Input
-                id="max-session"
                 type="number"
                 min="15"
                 max="180"
                 value={currentPrefs.maxSessionDuration}
-                onChange={(e) => updatePreference('maxSessionDuration', parseInt(e.target.value) || 90)}
+                onChange={(e) => updatePreference('maxSessionDuration', parseInt(e.target.value))}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Study Approach</Label>
+            <Select 
+              value={currentPrefs.preferredDifficulty} 
+              onValueChange={(value) => updatePreference('preferredDifficulty', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="adaptive">Adaptive (AI decides)</SelectItem>
+                <SelectItem value="easy-first">Easy topics first</SelectItem>
+                <SelectItem value="hard-first">Hard topics first</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Separator />
 
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Difficulty Ordering</Label>
-              <Select 
-                value={currentPrefs.preferredDifficulty} 
-                onValueChange={(value) => updatePreference('preferredDifficulty', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="adaptive">Adaptive (AI decides)</SelectItem>
-                  <SelectItem value="easy-first">Easy topics first</SelectItem>
-                  <SelectItem value="hard-first">Hard topics first</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex items-center justify-between">
-              <div className="space-y-1 flex-1 mr-4">
+              <div className="space-y-1">
                 <Label>Study Bursts</Label>
-                <p className="text-sm text-muted-foreground">
-                  Short, intense study sessions with longer breaks
+                <p className="text-xs text-muted-foreground">
+                  Break sessions into 25-minute focused bursts
                 </p>
               </div>
               <Switch
@@ -251,11 +174,11 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
                 onCheckedChange={(checked) => updatePreference('studyBursts', checked)}
               />
             </div>
-
+            
             <div className="flex items-center justify-between">
-              <div className="space-y-1 flex-1 mr-4">
+              <div className="space-y-1">
                 <Label>Weekend Study</Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Include weekends in study planning
                 </p>
               </div>
@@ -266,10 +189,10 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="space-y-1 flex-1 mr-4">
-                <Label>Study Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Get reminded when study sessions begin
+              <div className="space-y-1">
+                <Label>Study Reminders</Label>
+                <p className="text-xs text-muted-foreground">
+                  Get notifications for scheduled sessions
                 </p>
               </div>
               <Switch
@@ -281,23 +204,22 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
         </CardContent>
       </Card>
 
-      {/* Rollover Rules */}
       <Card>
-        <CardHeader className="p-4 sm:p-6">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <ArrowRight className="h-5 w-5 text-accent" />
+            <Gear className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             Session Rollover Rules
           </CardTitle>
           <CardDescription className="text-sm">
-            Control how incomplete study sessions are handled and rescheduled
+            Configure how incomplete sessions are handled
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0">
+        <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <div className="space-y-1 flex-1 mr-4">
-              <Label>Enable Automatic Rollover</Label>
-              <p className="text-sm text-muted-foreground">
-                Automatically move incomplete sessions to the next available day
+            <div className="space-y-1">
+              <Label>Enable Session Rollover</Label>
+              <p className="text-xs text-muted-foreground">
+                Automatically reschedule incomplete sessions
               </p>
             </div>
             <Switch
@@ -305,65 +227,59 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
               onCheckedChange={(checked) => updateRolloverRule('enabled', checked)}
             />
           </div>
-
+          
           {currentPrefs.rolloverRules.enabled && (
-            <div className="space-y-4 sm:space-y-6 pl-4 border-l-2 border-accent/20">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="max-rollover-days">Maximum Rollover Days</Label>
-                  <Input
-                    id="max-rollover-days"
-                    type="number"
-                    min="1"
-                    max="14"
-                    value={currentPrefs.rolloverRules.maxDays}
-                    onChange={(e) => updateRolloverRule('maxDays', parseInt(e.target.value) || 3)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Sessions older than this will be marked as expired
-                  </p>
-                </div>
+            <div className="space-y-4 pt-4 border-t">
+              <div className="space-y-2">
+                <Label>Maximum Rollover Days</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="7"
+                  value={currentPrefs.rolloverRules.maxDays}
+                  onChange={(e) => updateRolloverRule('maxDays', parseInt(e.target.value))}
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label>Rollover Priority</Label>
-                  <Select 
-                    value={currentPrefs.rolloverRules.priority} 
-                    onValueChange={(value) => updateRolloverRule('priority', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="high">High (schedule first)</SelectItem>
-                      <SelectItem value="medium">Medium (normal order)</SelectItem>
-                      <SelectItem value="low">Low (schedule last)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label>Rollover Priority</Label>
+                <Select 
+                  value={currentPrefs.rolloverRules.priority} 
+                  onValueChange={(value) => updateRolloverRule('priority', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low - Schedule when convenient</SelectItem>
+                    <SelectItem value="medium">Medium - Balance with new content</SelectItem>
+                    <SelectItem value="high">High - Prioritize over new sessions</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="space-y-2">
-                  <Label>Time Adjustment</Label>
-                  <Select 
-                    value={currentPrefs.rolloverRules.timeAdjustment} 
-                    onValueChange={(value) => updateRolloverRule('timeAdjustment', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="early">Early (morning preference)</SelectItem>
-                      <SelectItem value="normal">Normal (original times)</SelectItem>
-                      <SelectItem value="late">Late (afternoon preference)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label>Time Adjustment</Label>
+                <Select 
+                  value={currentPrefs.rolloverRules.timeAdjustment} 
+                  onValueChange={(value) => updateRolloverRule('timeAdjustment', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="shorter">Shorter (75% of original time)</SelectItem>
+                    <SelectItem value="normal">Normal (original time)</SelectItem>
+                    <SelectItem value="longer">Longer (125% of original time)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="space-y-1 flex-1 mr-4">
-                  <Label>Auto-Distribute</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Spread rolled-over sessions across multiple days if needed
+                <div className="space-y-1">
+                  <Label>Auto-distribute Sessions</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Spread rolled-over sessions across available days
                   </p>
                 </div>
                 <Switch
@@ -371,12 +287,12 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
                   onCheckedChange={(checked) => updateRolloverRule('autoDistribute', checked)}
                 />
               </div>
-
+              
               <div className="flex items-center justify-between">
-                <div className="space-y-1 flex-1 mr-4">
+                <div className="space-y-1">
                   <Label>Skip Weekends</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Don't schedule rolled-over sessions on weekends
+                  <p className="text-xs text-muted-foreground">
+                    Don't schedule rollover sessions on weekends
                   </p>
                 </div>
                 <Switch
@@ -389,95 +305,76 @@ export function SchedulingPreferences({ userProfile }: SchedulingPreferencesProp
         </CardContent>
       </Card>
 
-      {/* Current Settings Summary */}
       <Card>
-        <CardHeader className="p-4 sm:p-6">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <User className="h-5 w-5 text-secondary" />
-            Current Settings Summary
+            <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            Current Configuration
           </CardTitle>
           <CardDescription className="text-sm">
-            Overview of your active scheduling preferences
+            Overview of your active study preferences
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <p className="text-sm font-medium">Study Hours</p>
               <Badge variant="outline" className="text-xs">
+                Study Hours
+              </Badge>
+              <p className="text-sm font-medium">
                 {currentPrefs.startTime} - {currentPrefs.endTime}
-              </Badge>
+              </p>
             </div>
-
+            
             <div className="space-y-1">
-              <p className="text-sm font-medium">Session Length</p>
               <Badge variant="outline" className="text-xs">
-                Max {currentPrefs.maxSessionDuration}min
+                Session Length
               </Badge>
+              <p className="text-sm font-medium">
+                {currentPrefs.maxSessionDuration} minutes
+              </p>
             </div>
-
+            
             <div className="space-y-1">
-              <p className="text-sm font-medium">Break Duration</p>
               <Badge variant="outline" className="text-xs">
-                {currentPrefs.breakDuration}min
+                Break Duration
               </Badge>
+              <p className="text-sm font-medium">
+                {currentPrefs.breakDuration} minutes
+              </p>
             </div>
-
+            
             <div className="space-y-1">
-              <p className="text-sm font-medium">Rollover</p>
-              <Badge variant={currentPrefs.rolloverRules.enabled ? "default" : "secondary"} className="text-xs">
-                {currentPrefs.rolloverRules.enabled ? 'Enabled' : 'Disabled'}
+              <Badge variant={currentPrefs.studyBursts ? "default" : "outline"} className="text-xs">
+                Study Mode
               </Badge>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Difficulty</p>
-              <Badge variant="outline" className="text-xs">
-                {currentPrefs.preferredDifficulty.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-              </Badge>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Weekend Study</p>
-              <Badge variant={currentPrefs.weekendStudy ? "default" : "secondary"} className="text-xs">
-                {currentPrefs.weekendStudy ? 'Enabled' : 'Disabled'}
-              </Badge>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Notifications</p>
-              <Badge variant={currentPrefs.notifications ? "default" : "secondary"} className="text-xs">
-                {currentPrefs.notifications ? 'On' : 'Off'}
-              </Badge>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Study Mode</p>
-              <Badge variant="outline" className="text-xs">
+              <p className="text-sm font-medium">
                 {currentPrefs.studyBursts ? 'Bursts' : 'Regular'}
-              </Badge>
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* AI Integration Notice */}
-      <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-secondary/10 border-primary/20">
+      <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row items-start gap-4">
-            <div className="p-3 bg-primary/10 rounded-lg flex-shrink-0">
-              <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-            </div>
+          <div className="flex items-start gap-3">
+            <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0 mt-1" />
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold mb-1">AI-Enhanced Scheduling</h3>
+              <h3 className="font-semibold text-foreground mb-2">AI Learning Assistant</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Your preferences are used by the Grade UP AI to create personalized study plans. 
-                The system learns from your completion patterns and adjusts scheduling over time.
+                The system learns from your study patterns and automatically optimizes your schedule for maximum effectiveness.
               </p>
-              <div className="flex gap-2 flex-wrap">
-                <Badge variant="secondary" className="text-xs">Personalized</Badge>
-                <Badge variant="secondary" className="text-xs">Adaptive</Badge>
-                <Badge variant="secondary" className="text-xs">Smart Rollover</Badge>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="text-xs">
+                  Adaptive Scheduling
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  Performance Tracking
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  Smart Recommendations
+                </Badge>
               </div>
             </div>
           </div>
