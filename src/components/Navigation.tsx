@@ -33,7 +33,7 @@ export function Navigation({ currentView, onNavigate, userProfile }: NavigationP
               alt="GradeUp Logo" 
               className="h-15 sm:h-24 w-auto"
             />
-            <div className="hidden xs:block">
+            <div>
               <h1 className="font-bold text-sm sm:text-lg">GradeUp</h1>
               <p className="text-xs text-muted-foreground">AI Empowered Family</p>
             </div>
